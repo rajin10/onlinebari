@@ -264,6 +264,10 @@
                             onclick="window.location='{{ url('admin/setting/courier') }}'">
                             <i class="bx bx-package"></i> Courier
                         </li>
+                        <li class="{{ $navActive('admin/setting/google-sheets') }}"
+                            onclick="window.location='{{ url('admin/setting/google-sheets') }}'">
+                            <i class="bx bx-table"></i> Google Sheets
+                        </li>
                         <li class="{{ $navActive('admin/setting/mailsmsapireglog') }}"
                             onclick="window.location='{{ url('admin/setting/mailsmsapireglog') }}'">
                             <i class="bx bx-message-square-detail"></i> Mail / SMS &amp; API

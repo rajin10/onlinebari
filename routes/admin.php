@@ -315,6 +315,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('setting/seo', [SettingController::class, 'seoIndex'])->name('setting.seo');
     Route::get('setting/courier', [SettingController::class, 'courierIndex'])->name('setting.courier');
     Route::post('setting/courier/sendsteedfast', [CourierController::class, 'sendsteedfast'])->name('setting.courier.sendsteedfast');
+    Route::get('setting/google-sheets', [SettingController::class, 'googleSheetsIndex'])->name('setting.google_sheets');
+    Route::post('setting/google-sheets/test', [SettingController::class, 'googleSheetsTest'])->name('setting.google_sheets.test');
 
     Route::get('setting/mailsmsapireglog', [SettingController::class, 'mailsmsapireglogIndex'])->name('setting.mailsmsapireglog');
 

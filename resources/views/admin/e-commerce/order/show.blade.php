@@ -17,6 +17,50 @@
     {{-- Main content --}}
     <section class="space-y-4">
 
+        {{-- Fraud / Risk Intelligence --}}
+        @if ($order->fraud_checked_at || $order->fraud_risk_level)
+            @php
+                $rl = $order->fraud_risk_level;
+                $rv = $rl === 'High' ? 'danger' : ($rl === 'Medium' ? 'warning' : ($rl === 'Low' ? 'success' : 'neutral'));
+            @endphp
+            <div class="rounded-lg border {{ $order->is_flagged ? 'border-red-300' : 'border-slate-200' }} bg-white shadow-sm">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-3">
+                    <h3 class="font-medium text-slate-900">Fraud Intelligence <small class="font-normal text-slate-500">(courier history + this shop)</small></h3>
+                    <div class="flex items-center gap-2">
+                        <x-ui.badge :variant="$rv">Risk: {{ $rl ?? 'N/A' }}</x-ui.badge>
+                        @if ($order->is_flagged)
+                            <x-ui.badge variant="danger">🚩 Flagged for review</x-ui.badge>
+                        @endif
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3 lg:grid-cols-5">
+                    <div class="rounded-lg bg-slate-50 p-3 text-center">
+                        <div class="text-xl font-bold text-slate-800">{{ $order->fraud_total_orders ?? 0 }}</div>
+                        <div class="text-xs text-slate-500">Total Orders</div>
+                    </div>
+                    <div class="rounded-lg bg-green-50 p-3 text-center">
+                        <div class="text-xl font-bold text-green-700">{{ $order->fraud_success_orders ?? 0 }}</div>
+                        <div class="text-xs text-slate-500">Successful</div>
+                    </div>
+                    <div class="rounded-lg bg-amber-50 p-3 text-center">
+                        <div class="text-xl font-bold text-amber-700">{{ $order->fraud_pending_orders ?? 0 }}</div>
+                        <div class="text-xs text-slate-500">Pending</div>
+                    </div>
+                    <div class="rounded-lg bg-red-50 p-3 text-center">
+                        <div class="text-xl font-bold text-red-700">{{ $order->fraud_cancelled_orders ?? 0 }}</div>
+                        <div class="text-xs text-slate-500">Cancelled</div>
+                    </div>
+                    <div class="rounded-lg bg-slate-50 p-3 text-center">
+                        <div class="text-xl font-bold text-slate-800">{{ $order->fraud_success_rate !== null ? $order->fraud_success_rate . '%' : 'N/A' }}</div>
+                        <div class="text-xs text-slate-500">Success Rate</div>
+                    </div>
+                </div>
+                @if ($order->fraud_checked_at)
+                    <div class="border-t border-slate-200 px-4 py-2 text-xs text-slate-400">Checked {{ $order->fraud_checked_at->diffForHumans() }}</div>
+                @endif
+            </div>
+        @endif
+
         {{-- Customer Information Card --}}
         <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-3">

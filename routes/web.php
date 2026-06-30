@@ -128,6 +128,12 @@ Route::get('update/cart/{id}/{qty}', [CartController::class, 'updateCart'])->nam
 Route::get('destroy/cart/{id}', [CartController::class, 'destroyCart'])->name('destroy.cart');
 
 Route::get('checkout', [CheckoutController::class, 'checkout'])->name('checkout');
+// Returning-customer auto-fill lookup (rate limited)
+Route::get('checkout/customer-lookup', [OrderController::class, 'customerLookup'])
+    ->name('checkout.lookup')
+    ->middleware('throttle:30,1');
+// Premium order confirmation (PRG target; guest-accessible via capability URL)
+Route::get('order/success/{orderId}', [OrderController::class, 'orderSuccess'])->name('order.success');
 // Incomplete Lead Routes
 Route::post('/incomplete-lead/store', [IncompleteLeadController::class, 'store'])
     ->name('incomplete.lead.store');
