@@ -56,6 +56,16 @@
                     </x-ui.select>
                 </div>
 
+                <div class="w-full md:w-1/5">
+                    <x-ui.select name="risk" label="Fraud Risk">
+                        <option value="">All</option>
+                        <option value="flagged" {{ request('risk') === 'flagged' ? 'selected' : '' }}>🚩 Flagged only</option>
+                        <option value="High" {{ request('risk') === 'High' ? 'selected' : '' }}>High</option>
+                        <option value="Medium" {{ request('risk') === 'Medium' ? 'selected' : '' }}>Medium</option>
+                        <option value="Low" {{ request('risk') === 'Low' ? 'selected' : '' }}>Low</option>
+                    </x-ui.select>
+                </div>
+
                 <div class="flex items-end gap-2 pb-4">
                     <x-ui.button type="submit" variant="primary">Filter</x-ui.button>
                     <x-ui.button variant="secondary" :href="route('admin.order.index')">Reset</x-ui.button>
@@ -77,12 +87,17 @@
                         <th>Total</th>
                         <th>Date</th>
                         <th>Status</th>
+                        <th>Risk</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($orders as $key => $data)
-                        <tr>
+                        @php
+                            $risk = $data->fraud_risk_level;
+                            $riskVariant = $risk === 'High' ? 'danger' : ($risk === 'Medium' ? 'warning' : ($risk === 'Low' ? 'success' : 'neutral'));
+                        @endphp
+                        <tr @class(['bg-red-50' => $data->is_flagged])>
                             <td>{{ $key + 1 }}</td>
                             <td>{{ $data->invoice }}</td>
                             <td>{{ $data->first_name }}</td>
@@ -122,6 +137,19 @@
                                     <x-ui.badge variant="danger"><small>Sended to Courier</small></x-ui.badge>
                                 @elseif ($data->status == 3)
                                     <x-ui.badge variant="success">Delivered</x-ui.badge>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($risk)
+                                    <x-ui.badge :variant="$riskVariant">{{ $risk }}</x-ui.badge>
+                                    @if ($data->fraud_success_rate !== null)
+                                        <div class="mt-0.5 text-[11px] text-slate-500">{{ rtrim(rtrim((string) $data->fraud_success_rate, '0'), '.') }}% success</div>
+                                    @endif
+                                    @if ($data->is_flagged)
+                                        <div class="mt-1"><x-ui.badge variant="danger">🚩 Flagged</x-ui.badge></div>
+                                    @endif
+                                @else
+                                    <span class="text-xs text-slate-400">—</span>
                                 @endif
                             </td>
                             <td>

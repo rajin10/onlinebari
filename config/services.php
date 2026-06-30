@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    // BD Courier fraud / courier-history lookup (shared with admin fraud checker).
+    'bdcourier' => [
+        'url' => env('BDCOURIER_URL', 'https://bdcourier.com/api/courier-check'),
+        'key' => env('BDCOURIER_API_KEY'),
+    ],
+
+    // Google Sheets order log via a deployed Apps Script Web App webhook.
+    // Leave the URL empty to disable logging (the integration no-ops).
+    'google_sheets' => [
+        'webhook_url' => env('GOOGLE_SHEETS_WEBHOOK_URL'),
+        'secret' => env('GOOGLE_SHEETS_SECRET'),
+    ],
+
 ];

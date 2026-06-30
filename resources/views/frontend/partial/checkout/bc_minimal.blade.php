@@ -5,727 +5,434 @@
     <meta name='keywords' content="@foreach ($product->tags as $tag){{ $tag->name . ', ' }} @endforeach" />
 @endpush
 
-@section('title', 'Minimal - Buy now product')
+@section('title', 'অর্ডার করুন')
 
 @section('content')
     @php
-        $order = App\Models\Order::where('user_id', auth()->id())
-            ->select('address', 'shipping_charge', 'town', 'district', 'thana')
-            ->first();
+        if ($request->qty >= 6 && $product->whole_price > 0) {
+            $sub_total = $product->whole_price * $request->qty;
+        } else {
+            $sub_total = $request->dynamic_price * $request->qty;
+        }
+
+        $attr = [];
+        $attributes = DB::table('attributes')->get();
+        foreach ($attributes as $attribute) {
+            $attribute_prouct = DB::table('attribute_product')
+                ->select('*')
+                ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
+                ->addselect('attribute_values.name as vName')
+                ->addselect('attribute_product.id as vid')
+                ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
+                ->where('attribute_product.product_id', $product->id)
+                ->where('attributes.id', $attribute->id)
+                ->get();
+            if ($attribute_prouct->count() > 0) {
+                $slug = $attribute->slug;
+                $attr[$slug] = $request->$slug;
+            }
+        }
+
+        $currency = setting('CURRENCY_CODE_MIN') ?? 'TK';
     @endphp
 
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
-    @endif
-    <div id="checkout">
-        <div class="container">
-            <form action="{{ route('order.buy.store_minimal') }}" method="POST">
+    @include('frontend.partial.checkout._premium_styles')
+
+    <section id="premium-checkout" x-data="checkout()" x-cloak>
+        <div class="pc-shell">
+
+            <div class="pc-head">
+                <h1>নিরাপদ চেকআউট</h1>
+                <p>আপনার অর্ডারটি কয়েক সেকেন্ডেই সম্পন্ন করুন</p>
+            </div>
+
+            <form action="{{ route('order.buy.store_minimal') }}" method="POST" @submit.prevent="submitOrder($event)" novalidate>
                 @csrf
-                <div class="row mt-3">
-                    <div class="col-md-8 offset-md-2 alert-message">
-                        <div class="alert"></div>
-                    </div>
-                    <div class="widget3 col-md-7">
-                        <h4 class="form-title"><span>১</span> আপনার তথ্য</h4>
-                        <div class="card">
-                            <div class="row">
-                                <div class="form-group col-md-12">
-                                    <label for="first_name">আপনার নাম <sup class="text-red-500"></sup>*</label>
-                                    <input required value="{{ auth()->user()->name ?? '' }}" name="first_name"
-                                        id="first_name" class="form-control @error('first_name') is-invalid @enderror"
-                                        type="text" />
-                                    @error('first_name')
-                                        <small class="form-text text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <input type="hidden" id="lead_store_url" value="{{ route('incomplete.lead.store') }}">
+                <input type="hidden" name="country" value="{{ setting('COUNTRY_SERVE') ?? 'Bangladesh' }}">
+                <input type="hidden" name="id" value="{{ $request->id }}">
+                <input type="hidden" name="qty" value="{{ $request->qty }}">
+                <input type="hidden" name="color" value="{{ $request->color }}">
+                <input type="hidden" name="size" value="{{ $attr != '' ? json_encode($attr) : 'blank' }}">
+                <input type="hidden" name="dynamic_prices" value="{{ $request->dynamic_price }}">
+                <input type="hidden" name="stotal" value="{{ $sub_total }}">
+                <input type="hidden" name="partial_paid" id="partial_paid" value="0">
+                <input type="hidden" id="lead_store_url" value="{{ route('incomplete.lead.store') }}">
+                @if (!empty($request->pr))
+                    <input type="hidden" name="pr" value="{{ $request->pr }}">
+                @endif
 
-                                {{-- <div class="">
-                                <label for="last_name">Last Name <sup style="color: red;"></sup>*</label>
-                                <input required value="null" name="last_name" id="last_name" class="form-control @error('last_name') is-invalid @enderror" type="hidden"  />
-                                </div> --}}
+                <div class="pc-grid">
+                    {{-- ============ LEFT: FORM ============ --}}
+                    <div class="pc-col-form">
 
-                                <div class="form-group col-md-12">
-                                    <label for="phone">মোবাইল নম্বর <sup class="text-red-500">*</sup></label>
-                                    <input @if (auth()->user())
-                                    value="{{auth()->user()->phone}}"
-                                    @endif required name="phone" id="phone"
-                                        class="form-control @error('phone') is-invalid @enderror" type="number" />
-                                    @error('phone')
-                                        <small class="form-text text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
+                        <div class="pc-alert-server" x-show="errorMsg" x-transition x-text="errorMsg"></div>
+                        @if (session('error'))
+                            <div class="pc-alert-server">{{ session('error') }}</div>
+                        @endif
 
-                                <div class="form-group col-md-12 d-none" id="email_wrap">
-                                    <label for="email">Email Address <sup class="text-red-500">*</sup></label>
-                                    <input name="email" id="email" class="form-control @error('email') is-invalid @enderror" type="text"  />
-                                    @error('email')
-                                        <small class="form-text text-danger">{{$message}}</small>
-                                    @enderror
-                                </div>
+                        {{-- Step 1: Contact --}}
+                        <div class="pc-card">
+                            <div class="pc-card-label"><span class="pc-step">১</span> যোগাযোগের তথ্য</div>
 
-                                {{-- <div class="form-group ">
-                                <label for="country">Country/Region <sup style="color: red;">*</sup></label>
-                                <input name="country" id="country" value="{{ setting('COUNTRY_SERVE') ?? 'Bangladesh' }}" class="form-control @error('country') is-invalid @enderror" type="hidden"  />
-                                @error('country')
-                                    <small class="form-text text-danger">{{$message}}</small>
-                                @enderror
-                                </div> --}}
-                                {{-- <div class="form-group col-md-6">
-                                <label for="city">Division <sup style="color: red;">*</sup></label>
-                                <select name="city" id="divisions"  class="form-control @error('city') is-invalid @enderror"  onchange="divisionsList();">
-                                    <option>Select Division</option>
-                                    <option @isset($order->town)@if ($order->town == 'Barishal')selected @endif @endisset value="Barishal">Barishal</option>
-                                    <option @isset($order->town) @if ($order->town == 'Chattogram')selected @endif @endisset value="Chattogram">Chattogram</option>
-                                    <option @isset($order->town)@if ($order->town == 'Dhaka')selected @endif @endisset value="Dhaka">Dhaka</option>
-                                    <option @isset($order->town)@if ($order->town == 'Khulna')selected @endif @endisset value="Khulna">Khulna</option>
-                                    <option @isset($order->town)@if ($order->town == 'Mymensingh')selected @endif @endisset value="Mymensingh">Mymensingh</option>
-                                    <option @isset($order->town)@if ($order->town == 'Rajshahi')selected @endif @endisset value="Rajshahi">Rajshahi</option>
-                                    <option @isset($order->town)@if ($order->town == 'Rangpur')selected @endif @endisset value="Rangpur">Rangpur</option>
-                                    <option @isset($order->town)@if ($order->town == 'Sylhet')selected @endif @endisset value="Sylhet">Sylhet</option>
-                                </select><!--/ Division Section-->
-                                @error('city')
-                                    <small class="form-text text-danger">{{$message}}</small>
-                                @enderror
-                                </div> --}}
-                                {{-- <div class="form-group col-md-6">
-                                <label for="district">District <sup style="color: red;">*</sup></label>
-                                <select name="district"  class="form-control @error('district') is-invalid @enderror"  id="distr" onchange="thanaList();">
-                                    <option disabled >Select District</option>
-                                    @isset($order->district)
-                                    <option selected value="{{$order->district}}">{{$order->district}}</option>
-                                    @endisset
-                                </select><!--/ Districts Section-->
-                                @error('district')
-                                    <small class="form-text text-danger">{{$message}}</small>
-                                @enderror
-                                </div> --}}
-                                {{-- <div class="form-group col-md-6">
-                                <label for="district">Thana <sup style="color: red;">*</sup></label>
-                                <select name="thana"  class="form-control @error('district') is-invalid @enderror"  id="polic_sta">
-                                    <option disabled >Select Thana</option>
-                                    @isset($order->thana)
-                                    <option selected value="{{$order->thana}}">{{$order->thana}}</option>
-                                    @endisset
-                                </select>
-                            </div> --}}
-
-                                <div class="form-group col-md-12">
-                                    <label for="address">সম্পূর্ণ ঠিকানা</label>
-                                    <textarea name="address" id="address" rows="4" class="form-control "></textarea>
-                                    @error('address')
-                                        <small class="form-text text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                
-                                <div class="alert alert-warning mt-2 text-center" role="alert">
-                                    ⚠️ শিপিং চার্জ প্রতি কেজি ঢাকার ভিতরে ১১০ পরবর্তী প্রতি কেজি ১৫ টাকা করে যোগ হবে। ঢাকার বাহিরে প্রতি কেজি ১৩০ টাকা পরবর্তী প্রতি কেজি ২০ টাকা যোগ হবে।
-                                </div>
-
-                                @if ($product->sheba == 1)
-                                    <div class="form-group col-md-12">
-                                        <label class="text-[15px]">Service Recipte Date</label>
-                                        <input type="date" name="meet" id="meet" class="form-control"
-                                            placeholder="Service Recipte Date">
-                                        <small class="form-text text-danger phone"></small>
-                                    </div>
-                                @endif
-
-                                {{-- <div class="form-group">
-                                <label for="postcode">Postcode / ZIP(optional)</label>
-                                <input  name="postcode" id="postcode" class="form-control @error('postcode') is-invalid @enderror" type="text"  />
-                                @error('email')
-                                    <small class="form-text text-danger">{{$message}}</small>
-                                @enderror
-                                </div> --}}
-
-                                @if (!empty($request->pr))
-                                    <input type="hidden" name="pr" value="{{ $request->pr }}">
-                                @endif
-
-                                <!--<div class="form-group col-md-12">-->
-                                <!--    <select name="shipping_range" id="shipping_range" class="form-control">-->
-                                <!--        <option value="1">Inside {{ setting('shipping_range_inside') }}-->
-                                <!--            ({{ setting('shipping_charge') }})</option>-->
-                                <!--        <option value="0">Outside of ({{ setting('shipping_charge_out_of_range') }})</option>-->
-                                <!--    </select>-->
-                                <!--</div>-->
-
-                                
-                                {{-- <div class="form-group col-md-12">
-                                <label for="company">Company (optional)</label>
-                                <input  name="company" id="company" class="form-control @error('company') is-invalid @enderror" type="text"  />
-                                @error('email')
-                                    <small class="form-text text-danger">{{$message}}</small>
-                                @enderror
-                            </div> --}}
+                            <div class="pc-field">
+                                <input id="first_name" name="first_name" type="text" class="pc-input" placeholder=" "
+                                    autocomplete="name" x-model="name" value="{{ auth()->user()->name ?? '' }}" required>
+                                <label for="first_name">আপনার নাম <span class="pc-req">*</span></label>
+                                <small class="pc-err" x-show="errors.first_name" x-text="errors.first_name"></small>
                             </div>
+
+                            <div class="pc-field" :class="{ 'is-valid': phoneValid, 'is-invalid': touched.phone && !phoneValid }">
+                                <input id="phone" name="phone" type="tel" inputmode="numeric" class="pc-input"
+                                    placeholder=" " autocomplete="tel" x-model="phone"
+                                    @blur="touched.phone = true; lookupCustomer()"
+                                    value="{{ auth()->user()->phone ?? '' }}" required>
+                                <label for="phone">মোবাইল নম্বর <span class="pc-req">*</span></label>
+                                <span class="pc-valid-tick" x-show="phoneValid" x-transition>✓</span>
+                                <small class="pc-ok" x-show="phoneValid" x-transition>নম্বরটি সঠিক আছে</small>
+                                <small class="pc-err" x-show="touched.phone && !phoneValid"
+                                    x-text="errors.phone || 'সঠিক বাংলাদেশি মোবাইল নম্বর দিন (যেমনঃ 01XXXXXXXXX)।'"></small>
+                            </div>
+
+                            <p class="pc-returning" x-show="returning" x-transition>
+                                স্বাগতম! 👋 আপনার আগের তথ্য বসিয়ে দেওয়া হয়েছে।
+                            </p>
+                        </div>
+
+                        {{-- Step 2: Delivery --}}
+                        <div class="pc-card">
+                            <div class="pc-card-label"><span class="pc-step">২</span> ডেলিভারি ঠিকানা</div>
+
+                            <div class="pc-field">
+                                <textarea id="address" name="address" rows="3" class="pc-input pc-textarea"
+                                    placeholder=" " x-model="address"></textarea>
+                                <label for="address">সম্পূর্ণ ঠিকানা</label>
+                                <small class="pc-err" x-show="errors.address" x-text="errors.address"></small>
+                            </div>
+
+                            <div class="pc-field" :class="{ 'pc-hidden': payment !== 'uddoktapay' }" id="email_wrap">
+                                <input id="email" name="email" type="email" class="pc-input" placeholder=" "
+                                    x-model="email" :required="payment === 'uddoktapay'">
+                                <label for="email">ইমেইল ঠিকানা</label>
+                            </div>
+
+                            @if ($product->sheba == 1)
+                                <div class="pc-field">
+                                    <input type="date" name="meet" id="meet" class="pc-input" placeholder=" " required>
+                                    <label for="meet">সার্ভিস গ্রহণের তারিখ</label>
+                                </div>
+                            @endif
+
+                            <div class="pc-note">⚠️ শিপিং চার্জ প্রতি কেজি ঢাকার ভিতরে ১১০৳ (পরবর্তী প্রতি কেজি ১৫৳), ঢাকার বাহিরে ১৩০৳ (পরবর্তী প্রতি কেজি ২০৳) যোগ হবে।</div>
+                        </div>
+
+                        {{-- Step 3: Payment --}}
+                        <div class="pc-card">
+                            <div class="pc-card-label"><span class="pc-step">৩</span> পেমেন্ট পদ্ধতি</div>
+
+                            <div class="pc-pay-grid">
+                                @if (setting('g_cod') == 'true')
+                                    <label class="pc-pay" :class="{ 'selected': payment === 'Cash on Delivery' }">
+                                        <input type="radio" name="payment_method" value="Cash on Delivery" x-model="payment" checked>
+                                        <img src="{{ asset('/') }}icon/delivery-man.png" alt="Cash on Delivery" onerror="this.style.display='none'">
+                                        <span>ক্যাশ অন ডেলিভারি</span>
+                                        <i class="pc-pay-check">✓</i>
+                                    </label>
+                                @endif
+                                @if (setting('g_uddok') == 'true')
+                                    <label class="pc-pay" :class="{ 'selected': payment === 'uddoktapay' }">
+                                        <input type="radio" name="payment_method" value="uddoktapay" x-model="payment">
+                                        <img src="{{ asset('/') }}icon/uddoktapay.png" alt="UddoktaPay" onerror="this.style.display='none'">
+                                        <span>অনলাইন পেমেন্ট</span>
+                                        <i class="pc-pay-check">✓</i>
+                                    </label>
+                                @endif
+                                @if (setting('g_aamar') == 'true')
+                                    <label class="pc-pay" :class="{ 'selected': payment === 'aamarpay' }">
+                                        <input type="radio" name="payment_method" value="aamarpay" x-model="payment">
+                                        <img src="{{ asset('/') }}icon/aamarpay_logo.png" alt="aamarPay" onerror="this.style.display='none'">
+                                        <span>aamarPay</span>
+                                        <i class="pc-pay-check">✓</i>
+                                    </label>
+                                @endif
+                                @if (setting('g_bkash') == 'true')
+                                    <label class="pc-pay" :class="{ 'selected': payment === 'Bkash' }">
+                                        <input type="radio" name="payment_method" value="Bkash" x-model="payment">
+                                        <img src="{{ asset('/') }}icon/bkash.png" alt="bKash" onerror="this.style.display='none'">
+                                        <span>বিকাশ</span>
+                                        <i class="pc-pay-check">✓</i>
+                                    </label>
+                                @endif
+                                @if (setting('g_nagad') == 'true')
+                                    <label class="pc-pay" :class="{ 'selected': payment === 'Nagad' }">
+                                        <input type="radio" name="payment_method" value="Nagad" x-model="payment">
+                                        <img src="{{ asset('/') }}icon/nagad.png" alt="Nagad" onerror="this.style.display='none'">
+                                        <span>নগদ</span>
+                                        <i class="pc-pay-check">✓</i>
+                                    </label>
+                                @endif
+                                @if (setting('g_rocket') == 'true')
+                                    <label class="pc-pay" :class="{ 'selected': payment === 'Rocket' }">
+                                        <input type="radio" name="payment_method" value="Rocket" x-model="payment">
+                                        <img src="{{ asset('/') }}icon/rocket.png" alt="Rocket" onerror="this.style.display='none'">
+                                        <span>রকেট</span>
+                                        <i class="pc-pay-check">✓</i>
+                                    </label>
+                                @endif
+                                @if (setting('g_bank') == 'true')
+                                    <label class="pc-pay" :class="{ 'selected': payment === 'Bank' }">
+                                        <input type="radio" name="payment_method" value="Bank" x-model="payment">
+                                        <img src="{{ asset('/') }}icon/bank.png" alt="Bank" onerror="this.style.display='none'">
+                                        <span>ব্যাংক</span>
+                                        <i class="pc-pay-check">✓</i>
+                                    </label>
+                                @endif
+                            </div>
+
+                            <div class="pc-pay-hint" x-show="payHint" x-html="payHint" x-transition></div>
+
+                            <template x-if="['Bkash','Nagad','Rocket'].includes(payment)">
+                                <div class="pc-field-row">
+                                    <div class="pc-field"><input type="text" name="mobile_number" class="pc-input" placeholder=" " required><label>যে নম্বর থেকে পাঠিয়েছেন</label></div>
+                                    <div class="pc-field"><input type="text" name="transaction_id" class="pc-input" placeholder=" " required><label>ট্রানজেকশন আইডি</label></div>
+                                </div>
+                            </template>
+
+                            <template x-if="payment === 'Bank'">
+                                <div class="pc-field-row pc-bank">
+                                    <div class="pc-field"><input type="text" name="bank_name" class="pc-input" placeholder=" " required><label>ব্যাংকের নাম</label></div>
+                                    <div class="pc-field"><input type="text" name="account_number" class="pc-input" placeholder=" " required><label>একাউন্ট নম্বর</label></div>
+                                    <div class="pc-field"><input type="text" name="holder_name" class="pc-input" placeholder=" " required><label>হোল্ডারের নাম</label></div>
+                                    <div class="pc-field"><input type="text" name="branch" class="pc-input" placeholder=" " required><label>ব্রাঞ্চ</label></div>
+                                    <div class="pc-field"><input type="text" name="routing" class="pc-input" placeholder=" " required><label>রাউটিং নম্বর</label></div>
+                                </div>
+                            </template>
+                        </div>
+
+                        {{-- Place order --}}
+                        <div class="pc-cta-wrap">
+                            @include('frontend.partial.checkout._premium_cta')
                         </div>
                     </div>
 
+                    {{-- ============ RIGHT: ORDER SUMMARY ============ --}}
+                    <aside class="pc-col-summary">
+                        <div class="pc-summary">
+                            <button type="button" class="pc-summary-head" @click="summaryOpen = !summaryOpen">
+                                <span>🧾 অর্ডার সারাংশ</span>
+                                <span class="pc-summary-total">
+                                    <span id="total-mini">{{ number_format($sub_total, 0) }}</span> {{ $currency }}
+                                    <i class="pc-chev" :class="{ 'open': summaryOpen }">⌄</i>
+                                </span>
+                            </button>
 
-
-
-                    <div class="widget3 col-md-5">
-                        <div class="row">
-                            <style>
-                                #accordion .card {
-                                    padding: 0 !important;
-                                }
-
-                                #accordion .card-body {
-                                    padding: 0;
-                                    margin-top: 10px;
-                                }
-
-                                #accordion .card-header {
-                                    padding: 0;
-                                }
-
-                                #accordion .card-header h5 div {
-                                    font-size: 15px;
-                                    padding: 10px;
-                                    background: var(--primary_color);
-                                    color: white;
-                                    cursor: pointer;
-                                }
-
-                                label img {
-                                    width: 100px;
-                                    height: 50px;
-                                    object-fit: contain;
-                                }
-
-                                .pa label {
-                                    text-align: center;
-                                    box-shadow: 0px 0px 6px gainsboro;
-                                    padding: 10px 20px;
-                                    border-radius: 5px;
-                                    position: relative;
-                                    cursor: pointer;
-                                }
-
-                                .arrow-in {
-                                    top: 5px;
-                                }
-
-                                .payment_method {
-                                    position: absolute;
-                                    z-index: -9;
-                                }
-                            </style>
-                            <div class="widget-3 col-md-12">
-                                <div class="widget3">
-                                    <h4 class="form-title"><span>২</span>পেমেন্ট পদ্ধতি</h4>
-                                    <div class="card pa">
-                                        <input type="hidden" value="{{ $request->dynamic_price }}" name="dynamic_prices">
-                                        <div class="form-row">
-                                            <div id="accordion" class="col-12">
-                                                <div class="card">
-                                                    <div id="collapseTwo" class="collapse show"
-                                                        aria-labelledby="headingTwo" data-parent="#accordion">
-                                                        <div class="card-body">
-                                                            @if (setting('g_cod') == 'true')
-                                                                <label for="cod">
-                                                                    <input type="radio" name="payment_method"
-                                                                        class="payment_method" value="Cash on Delivery"
-                                                                        id="cod" checked>
-                                                                    <img src="{{ asset('/') }}icon/delivery-man.png">
-                                                                   ক্যাশ অন<br> ডেলিভারি
-                                                                </label>
-                                                            @endif
-                                                            @if (setting('g_aamar') == 'true')
-                                                                <label for="aamarpay">
-                                                                    <input type="radio" name="payment_method"
-                                                                        class="payment_method" value="aamarpay"
-                                                                        id="aamarpay">
-                                                                    <img src="{{ asset('/') }}icon/aamarpay_logo.png">
-                                                                    Aamarpay
-                                                                </label>
-                                                            @endif
-                                                            @if (setting('g_uddok') == 'true')
-                                                                <label for="uddoktapay">
-                                                                    <input type="radio" name="payment_method"
-                                                                        class="payment_method" value="uddoktapay"
-                                                                        id="uddoktapay">
-                                                                    <img src="{{ asset('/') }}icon/uddoktapay.png">
-                                                                    Uddoktapay
-                                                                </label>
-                                                            @endif
-                                                            @if (setting('g_bkash') == 'true')
-                                                                <!--<label for="Bkash">-->
-                                                                <!--    <input type="radio" name="payment_method"-->
-                                                                <!--        class="payment_method" value="Bkash"-->
-                                                                <!--        id="Bkash">-->
-                                                                <!--    <img src="{{ asset('/') }}icon/bkash.png">-->
-                                                                <!--    Bkash-->
-                                                                <!--</label>-->
-                                                            @endif
-                                                            @if (setting('g_nagad') == 'true')
-                                                                <!--<label for="Nagad">-->
-                                                                <!--    <input type="radio" name="payment_method"-->
-                                                                <!--        class="payment_method" value="Nagad"-->
-                                                                <!--        id="Nagad">-->
-                                                                <!--    <img src="{{ asset('/') }}icon/nagad.png">-->
-                                                                <!--    Nagad-->
-                                                                <!--</label>-->
-                                                            @endif
-                                                            @if (setting('g_rocket') == 'true')
-                                                                <!--<label for="Rocket">-->
-                                                                <!--    <input type="radio" name="payment_method"-->
-                                                                <!--        class="payment_method" value="Rocket"-->
-                                                                <!--        id="Rocket">-->
-                                                                <!--    <img src="{{ asset('/') }}icon/rocket.png">-->
-                                                                <!--    Rocket-->
-                                                                <!--</label>-->
-                                                            @endif
-                                                            @if (setting('g_bank') == 'true')
-                                                                <!--<label for="Bank">-->
-                                                                <!--    <input type="radio" name="payment_method"-->
-                                                                <!--        class="payment_method" value="Bank"-->
-                                                                <!--        id="Bank">-->
-                                                                <!--    <img src="{{ asset('/') }}icon/bank.png">-->
-                                                                <!--</label>-->
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="card">
-                                                    <div class="card-header" id="headingThree">
-                                                    </div>
-                                                    <div id="collapseThree" class="collapse"
-                                                        aria-labelledby="headingThree" data-parent="#accordion">
-                                                        <div class="card-body">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            @error('payment_method')
-                                                <small class="form-text text-danger">{{ $message }}</small>
-                                            @enderror
+                            <div class="pc-summary-body" x-show="summaryOpen" x-transition>
+                                <div class="pc-items">
+                                    <div class="product pc-item">
+                                        <img src="{{ asset('uploads/product/' . $product->image) }}" alt="{{ $product->title }}" onerror="this.style.visibility='hidden'">
+                                        <div class="pc-item-info">
+                                            <a href="{{ route('product.details', $product->slug) }}">{{ $product->title }}</a>
+                                            <span class="pc-item-qty">পরিমাণ: {{ $request->qty }}</span>
                                         </div>
-                                        <p class="mt-2 bg-[#dcdcdc80] p-[10px] rounded-[5px] mb-[10px]" id="appended">
-                                        </p>
-                                        <div id="payment-details"></div>
+                                        <span class="pc-item-price" style="text-align: right">{{ number_format($sub_total, 0) }} {{ $currency }}</span>
                                     </div>
+                                </div>
+
+                                <div class="pc-coupon">
+                                    <input type="text" id="coupon" class="pc-input" placeholder="কুপন কোড">
+                                    <button type="button" id="apply-coupon" class="pc-coupon-btn">প্রয়োগ</button>
+                                </div>
+
+                                <div class="pc-totals">
+                                    <div class="pc-trow"><span>সাবটোটাল</span><span><span id="sub-total">{{ $sub_total }}</span> {{ $currency }}</span></div>
+                                    <div class="pc-trow"><span>কুপন <span class="coupon-name"></span></span><span>- <span id="coupon">{{ Session::has('coupon') ? number_format(Session::get('coupon')['discount'], 2, '.', ',') : '0.00' }}</span> {{ $currency }}</span></div>
+                                    <div class="pc-trow pc-grand"><span>সর্বমোট</span><span><span id="total">{{ number_format($sub_total, 2, '.', ',') }}</span> {{ $currency }}</span></div>
                                 </div>
                             </div>
                         </div>
-                        <h4 class="form-title"><span>৩</span>অর্ডারের তথ্য</h4>
-                        <div class="card">
-                            <?php
-                            if ($request->qty >= 6 && $product->whole_price > 0) {
-                                $sub_total = $product->whole_price * $request->qty;
-                            } else {
-                                $sub_total = $request->dynamic_price * $request->qty;
-                            }
-                            ?>
-                            <div class="product mb-[10px] flex">
-                                <img class="w-[50px]" src="{{ asset('uploads/product/' . $product->image) }}"
-                                    alt="">
-                                <a class="ml-[10px]"
-                                    href="{{ route('product.details', $product->slug) }}">{{ $product->title }}</a>
-                                <span class="flex-auto text-right"> {{ $sub_total }}</span>
-                                <input type="hidden" name="id" value="{{ $request->id }}">
-                                <input type="hidden" name="qty" value="{{ $request->qty }}">
-                                <?php
-                                $attr = [];
-                            $attributes = DB::table('attributes')->get();
-                            foreach ($attributes as $attribute) {
-                                $attribute_prouct = DB::table('attribute_product')
-                                    ->select('*')
-                                    ->join('attribute_values', 'attribute_values.id', '=', 'attribute_product.attribute_value_id')
-                                    ->addselect('attribute_values.name as vName')
-                                    ->addselect('attribute_product.id as vid')
-                                    ->join('attributes', 'attributes.id', '=', 'attribute_values.attributes_id')
-                                    ->where('attribute_product.product_id', $product->id)
-                                    ->where('attributes.id', $attribute->id)
-                                    ->get();
-                                if ($attribute_prouct->count() > 0) {
-                                    $slug = $attribute->slug;
-
-                                    $attr[$slug] = $request->$slug;
-                                }
-                            }
-                            ?>
-                                <input type="hidden" name="size"
-                                    value="{{ $attr != '' ? json_encode($attr) : 'blank' }}">
-                                <input type="hidden" name="color" value="{{ $request->color }}">
-                            </div>
-
-                            <style>
-                                .arrow2 .icofont-simple-down {
-                                    display: block;
-                                }
-
-                                .arrow2 .icofont-simple-right {
-                                    display: none;
-                                }
-
-                                .collapsed .arrow2 .icofont-simple-down {
-                                    display: none !important;
-                                }
-
-                                .collapsed .arrow2 .icofont-simple-right {
-                                    display: block !important;
-                                }
-                            </style>
-                            <div class="form-group">
-                                <div class="form-group instruction">
-                                    <a class="collapsed" data-toggle="collapse" href="#collapseExample" role="button"
-                                        aria-expanded="false" aria-controls="collapseExample">
-                                        <span><label for="">কুপন</label> </span><span class="arrow2"></span>
-                                    </a>
-                                    <div class="collapse" id="collapseExample">
-                                        <input type="text" id="coupon" class="form-control"
-                                            placeholder="কুপন কোড" />
-                                        <button type="button" class="btn btn-primary btn-block py-2"
-                                            id="apply-coupon">ব্যবহার করুন</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="hidden" value="0" id="partial_paid" name="partial_paid"
-                                class="form-control" placeholder="Partial Amount" />
-                            {{-- <div class="form-group">-->
-                                <div class="form-group instruction">
-                                    <a data-toggle="collapse" href="#collapseWall" role="button" aria-expanded="false"
-                                        aria-controls="collapseWall">
-                                        <span><label for="">Use Wallate</label> </span>
-                                        =={{ auth()->user()->wallate }}<span class="arrow"></span>
-                                    </a>
-                                    <div class="collapse" id="collapseWall">
-                                    </div>
-                                </div>
-                            </div>
-                            <hr> --}}
-
-                            <div class="rvinfo">
-                                <span>মোট</span>
-                                <span><span id="sub-total"> {{ $sub_total }}</< /span> <strong> {{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</strong></span>
-                            </div>
-                            
-                            
-                            <!--<div class="rvinfo">-->
-                            <!--    <span>Shipping Charge</span>-->
-                            <!--    <span>+ <span id="ship-charge">-->
-                            <!--            @if (isset($order->shipping_charge))-->
-                            <!--                {{ $order->shipping_charge }}-->
-                            <!--            @else-->
-                            <!--                0.00-->
-                            <!--            @endif-->
-                            <!--        </span><strong> {{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</strong></span>-->
-                            <!--</div>-->
-                            
-                            
-
-                            <div class="rvinfo coupon">
-                                <span>কুপন <span class="coupon-name"></span></span>
-                                <span>- <span
-                                        id="coupon">{{ Session::has('coupon') ? number_format(Session::get('coupon')['discount'], 2, '.', ',') : '0.00' }}</span><strong>
-                                            {{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}</strong></span>
-                            </div>
-                            <hr>
-                            <div class="rvinfo">
-                                <span>সর্বমোট</span>
-                                <h4>
-                                    @if (Session::has('coupon'))
-                                        @php
-                                            $discount = Session::get('coupon')['discount'];
-                                            $total = number_format($sub_total - $discount, 2, '.', ',');
-                                        @endphp
-                                    @endif
-                                    <strong>
-                                        <span id="total">
-                                            {{ $total ?? number_format($sub_total, 2, '.', ',') }}</span> {{ setting('CURRENCY_CODE_MIN') ?? 'TK' }}
-                                    </strong>
-                                </h4>
-                            </div>
-                        </div>
-                        <input value="অর্ডার করুন" type="submit">
-                    </div>
+                    </aside>
                 </div>
             </form>
         </div>
-    </div>
+    </section>
 @endsection
 
 @push('js')
     <script src="{{ asset('/') }}assets/frontend/js/city.js"></script>
     <script>
-        $(document).ready(function() {
-            $(document).on('click', '#apply-coupon', function(e) {
-                e.preventDefault();
-                $('#coupon').removeClass('is-invalid');
-                let code = $('input#coupon').val();
-                let id = "{!! $request->id !!}";
-                let qty = "{!! $request->qty !!}";
-                let dynamic_price = "{!! $request->dynamic_price !!}";
-                let shipping_charge = 0;
-                let download_able = "{!! $product->download_able !!}";
+        function checkout() {
+            return {
+                name: @json(auth()->user()->name ?? ''),
+                phone: @json(auth()->user()->phone ?? ''),
+                address: '',
+                email: '',
+                payment: @js(setting('g_cod') == 'true' ? 'Cash on Delivery' : ''),
+                submitting: false,
+                summaryOpen: window.innerWidth >= 1024,
+                touched: { phone: false },
+                errors: {},
+                errorMsg: '',
+                returning: false,
+                lastLookup: '',
 
-                // if (download_able != 1) {
-                //     if ($("select[name='city']").val() == 'Dhaka') {
-                //         let charge = "{!! setting('shipping_charge') !!}";
-                //         shipping_charge += parseInt(charge);
-                //     } else {
-                //         let charge = "{!! setting('shipping_charge_out_of_range') !!}";
-                //         shipping_charge += parseInt(charge);
-                //     }
-                // }
+                init() {
+                    window.addEventListener('resize', () => { if (window.innerWidth >= 1024) this.summaryOpen = true; });
+                },
 
-                if (code != '') {
-                    $.ajax({
-                        type: 'GET',
-                        url: '/apply/coupon/buy-now/' + code + '/' + id + '/' + qty + '/' +
-                            dynamic_price,
-                        dataType: "JSON",
-                        success: function(response) {
-                            console.log(response);
-                            $('.alert-message').removeClass('d-none');
-                            if (response.alert == 'success') {
-                                $('.alert-message .alert').removeClass('alert-danger').addClass(
-                                    'alert-success').text(response.message);
-                                $('span#ship-charge').text(number_format(shipping_charge, 2,
-                                    '.', ','));
-                                $('span#coupon').text(number_format(response.discount, 2, '.',
-                                    ','));
-                                let total = response.total + shipping_charge;
-                                $('span#total').text(number_format(total, 2, '.', ','));
-                                $('span.coupon-name').text('(' + code + ')');
-                                $('#coupon').val('')
-                            } else {
-                                $('.alert-message .alert').removeClass('alert-success')
-                                    .addClass('alert-danger').text(response.message);
-                            }
-                        },
-                        error: function(xhr) {
-                            console.log(xhr);
-                        }
+                normalizePhone(raw) {
+                    let d = (raw || '').replace(/\D+/g, '');
+                    if (d.length === 13 && d.startsWith('88')) d = d.slice(2);
+                    else if (d.length === 12 && d.startsWith('880')) d = '0' + d.slice(3);
+                    else if (d.length === 10 && d[0] === '1') d = '0' + d;
+                    return d;
+                },
+                get phoneNormalized() { return this.normalizePhone(this.phone); },
+                get phoneValid() { return /^01[3-9]\d{8}$/.test(this.phoneNormalized); },
+
+                get payHint() {
+                    switch (this.payment) {
+                        case 'Cash on Delivery': return 'পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।';
+                        case 'Bkash': return @js(setting('bkash') ?? '') + ' — এই নম্বরে টাকা পাঠিয়ে ট্রানজেকশন আইডি দিন।';
+                        case 'Nagad': return @js(setting('nagad') ?? '') + ' — এই নম্বরে টাকা পাঠিয়ে ট্রানজেকশন আইডি দিন।';
+                        case 'Rocket': return @js(setting('rocket') ?? '') + ' — এই নম্বরে টাকা পাঠিয়ে ট্রানজেকশন আইডি দিন।';
+                        case 'Bank': return @js('Bank: ' . (setting('bank_name') ?? '') . ' | Branch: ' . (setting('branch_name') ?? '') . ' | A/C: ' . (setting('bank_account') ?? '') . ' | Routing: ' . (setting('routing') ?? ''));
+                        case 'uddoktapay':
+                        case 'aamarpay': return 'অর্ডার কনফার্ম করার পর অনলাইনে পেমেন্ট সম্পন্ন করুন।';
+                        default: return '';
+                    }
+                },
+
+                lookupCustomer() {
+                    if (!this.phoneValid || this.phoneNormalized === this.lastLookup) return;
+                    this.lastLookup = this.phoneNormalized;
+                    fetch(`{{ route('checkout.lookup') }}?phone=${encodeURIComponent(this.phoneNormalized)}`, { headers: { 'Accept': 'application/json' } })
+                        .then(r => r.json())
+                        .then(d => {
+                            if (!d.found) return;
+                            let filled = false;
+                            if (d.name && !this.name) { this.name = d.name; filled = true; }
+                            if (d.address && !this.address) { this.address = d.address; filled = true; }
+                            if (filled) { this.returning = true; setTimeout(() => this.returning = false, 6000); }
+                        })
+                        .catch(() => {});
+                },
+
+                applyErrors(errs) {
+                    this.errors = {};
+                    for (const key in errs) this.errors[key] = errs[key][0];
+                    if (this.errors.phone) this.touched.phone = true;
+                    this.$nextTick(() => {
+                        const el = this.$root.querySelector('.pc-err:not([style*="display: none"])');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     });
-                } else {
-                    $('#coupon').addClass('is-invalid');
+                },
+
+                async submitOrder(e) {
+                    this.touched.phone = true;
+                    this.errorMsg = '';
+                    if (!this.name.trim()) { this.errors = { ...this.errors, first_name: 'আপনার নাম লিখুন।' }; }
+                    if (!this.phoneValid) {
+                        this.$root.querySelector('#phone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+                    if (this.submitting) return;
+                    this.submitting = true;
+
+                    const form = e.target;
+                    try {
+                        const res = await fetch(form.action, {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                            body: new FormData(form)
+                        });
+                        if (res.status === 422) {
+                            const j = await res.json();
+                            this.applyErrors(j.errors || {});
+                            this.submitting = false;
+                            return;
+                        }
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const j = await res.json();
+                        if (j.redirect) { window.location.href = j.redirect; return; }
+                        this.submitting = false;
+                    } catch (err) {
+                        this.errorMsg = 'কিছু একটা সমস্যা হয়েছে, অনুগ্রহ করে আবার চেষ্টা করুন।';
+                        this.submitting = false;
+                    }
                 }
-                setTimeout(() => {
-                    $('.alert-message .alert').removeClass('alert-danger alert-success').text('');
-                }, 10000);
+            };
+        }
+    </script>
 
-            });
-
-
-            // default COD - Payment Method
-            $('#cod').parent("label").css("background", "#22385A");
-            $('#cod').parent("label").css("color", "white");
-            $('.payment_method').change(function(e) {
-                // Check if the selected payment method is not "Cash on Delivery"
-                if ($(this).val() !== 'Cash on Delivery') {
-                    // If not, automatically select the "Cash on Delivery" option
-                    $('#cod').parent("label").css("background", "white");
-
-                }
-            });
-
-            $(document).on('click', '.payment_method', function(e) {
-                $("label").css("background", "white");
-                $(this).parent("label").css("background", "#22385A");
-                $(this).parent("label").css("color", "white");
-                let method = $(this).val();
-                let html = '';
-                var bkash = "{{ setting('bkash') }}";
-                var nogod = "{{ setting('nagad') }}";
-                var rocket = "{{ setting('rocket') }}";
-                var bank = "{!! setting('bank_name') !!}";
-                var branch = "{!! setting('branch_name') !!}";
-                var holder = "{!! setting('holder_name') !!}";
-                var account = "{!! setting('bank_account') !!}";
-                var appended = $('#appended');;
-                if (method == 'Bkash') {
-                    appended.html(bkash + ' - এই নাম্বারে টাকা পাঠিয়ে নিচের ফিল্ডে  Transaction ID টি দিন');
-                    off_email();
-                } else if (method == 'Nagad') {
-                    appended.html(nogod + ' - এই নাম্বারে টাকা পাঠিয়ে নিচের ফিল্ডে  Transaction ID টি দিন');
-                    off_email();
-                } else if (method == 'Rocket') {
-                    appended.html(rocket +
-                        ' - এই নাম্বারে টাকা পাঠিয়ে নিচের ফিল্ডে  Transaction ID টি দিন');
-                    off_email();
-                } else if (method == 'Bank') {
-                    appended.html('নিচে দেয়া ব্যাংকে টাকা পাঠিয়ে নিচের ফিল্ডগুলো পূরণ করুন <br> ' +
-                        'Bank Name: ' + bank + '<br>Branch: ' + branch + '<br>holder: ' + holder +
-                        '<br>Account: ' + account);
-                    
-                        off_email();
-                } else if (method == 'Cash on Delivery') {
-                    appended.html('পণ্য হাতে পেয়ে টাকা দিন। ');
-                    off_email();
-                } else if (method == 'uddoktapay') {
-                    // Email On
-                    $('#email_wrap').removeClass('d-none');
-                    $('#email').prop('required', true);
-
-                } else {
-                    appended.html('');
-                    off_email();
-                }
-
-
-                if (method == 'Bkash' || method == 'Nagad' || method == 'Rocket') {
-
-                    off_email();
-
-                    html += '<div class="form-group">'
-                    html += '<label for="mobile_number">Mobile Number</label>'
-                    html +=
-                        '<input required type="text" name="mobile_number" id="mobile_number" class="form-control" placeholder="Enter your mobile number"/>'
-                    html += '</div>'
-                    html += '<div class="form-group">'
-                    html += '<label for="transaction_id">Transaction ID</label>'
-                    html +=
-                        '<input required type="text" name="transaction_id" id="transaction_id" class="form-control" placeholder="Enter transaction ID"/>'
-                    html += '</div>'
-                } else if (method == 'Bank') {
-
-                    off_email();
-
-                    html += '<div class="form-group">'
-                    html += '<label for="bank_name">Bank Name</label>'
-                    html +=
-                        '<input required type="text" name="bank_name" id="bank_name" class="form-control" placeholder="Enter bank name"/>'
-                    html += '</div>'
-                    html += '<div class="form-group">'
-                    html += '<label for="account_number">Account Number</label>'
-                    html +=
-                        '<input required type="text" name="account_number" id="account_number" class="form-control" placeholder="Enter account number"/>'
-                    html += '</div>'
-                    html += '<div class="form-group">'
-                    html += '<label for="holder_name">Holder Name</label>'
-                    html +=
-                        '<input required type="text" name="holder_name" id="holder_name" class="form-control" placeholder="Enter holder name"/>'
-                    html += '</div>'
-                    html += '<div class="form-group">'
-                    html += '<label for="branch">Branch Name</label>'
-                    html +=
-                        '<input required type="text" name="branch" id="branch" class="form-control" placeholder="Enter branch name"/>'
-                    html += '</div>'
-                    html += '<div class="form-group">'
-                    html += '<label for="routing">Routing Number</label>'
-                    html +=
-                        '<input required type="text" name="routing" id="routing" class="form-control" placeholder="Enter routing number"/>'
-                    html += '</div>'
-                } else {
-
-                    html = 'Onlne Payment Selectd, Place order and pay online';
-
-                }
-                $('#payment-details').html(html);
-            })
-            $(document).on('change', '#shipping_range', function(e) {
-                divis()
-            });
-
-
-            // Email Off
-            function off_email(){
-                $('#email_wrap').addClass('d-none');
-                $('#email').removeAttr('required');
-            }
-            
-            
-            divis();
-            function divis() {
-                let shipping_charge = 0;
-                let download_able = "{!! $product->download_able !!}";
-                // if (download_able != 1) {
-                //     if ($("select[name='shipping_range']").val() == 1) {
-                //         let charge = "{!! setting('shipping_charge') !!}";
-                //         shipping_charge += parseInt(charge);
-                //     } else {
-                //         let charge = "{!! setting('shipping_charge_out_of_range') !!}";
-                //         shipping_charge += parseInt(charge);
-                //     }
-                // }
-                let subtotal = $('span#sub-total').text();
-                let coupon = $('span#coupon').text();
-                let rep_subtotal = subtotal.replace(',', '');
-                let rep_coupon = coupon.replace(',', '');
-                let total = (parseInt(rep_subtotal) + shipping_charge) - parseInt(rep_coupon);
-                $('span#ship-charge').text(number_format(shipping_charge, 2, '.', ','));
-                $('span#total').text(number_format(total, 2, '.', ','));
-            }
-
+    {{-- Buy-now coupon --}}
+    <script>
+        $(document).ready(function() {
             function number_format(number, decimals, dec_point, thousands_sep) {
                 var n = !isFinite(+number) ? 0 : +number,
                     prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
                     sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
                     dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
-                    toFixedFix = function(n, prec) {
-                        // Fix for IE parseFloat(0.55).toFixed(0) = 0;
-                        var k = Math.pow(10, prec);
-                        return Math.round(n * k) / k;
-                    },
+                    toFixedFix = function(n, prec) { var k = Math.pow(10, prec); return Math.round(n * k) / k; },
                     s = (prec ? toFixedFix(n, prec) : Math.round(n)).toString().split('.');
-                if (s[0].length > 3) {
-                    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
-                }
-                if ((s[1] || '').length < prec) {
-                    s[1] = s[1] || '';
-                    s[1] += new Array(prec - s[1].length + 1).join('0');
-                }
+                if (s[0].length > 3) s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                if ((s[1] || '').length < prec) { s[1] = s[1] || ''; s[1] += new Array(prec - s[1].length + 1).join('0'); }
                 return s.join(dec);
             }
+
+            function recompute() {
+                let stotal = parseFloat("{!! $sub_total !!}") || 0;
+                let coupon = parseFloat(($('span#coupon').text() || '0').replace(/,/g, '')) || 0;
+                let total = Math.max(0, stotal - coupon);
+                $('span#total').text(number_format(total, 2, '.', ','));
+                $('#total-mini').text(number_format(total, 0, '.', ','));
+            }
+            recompute();
+
+            $(document).on('click', '#apply-coupon', function(e) {
+                e.preventDefault();
+                let code = $('input#coupon').val();
+                let id = "{!! $request->id !!}", qty = "{!! $request->qty !!}", dynamic_price = "{!! $request->dynamic_price !!}";
+                if (!code) { $('input#coupon').addClass('is-invalid'); return; }
+                $.ajax({
+                    type: 'GET',
+                    url: '/apply/coupon/buy-now/' + code + '/' + id + '/' + qty + '/' + dynamic_price,
+                    dataType: 'JSON',
+                    success: function(response) {
+                        if (response.alert == 'success') {
+                            $('span#coupon').text(number_format(response.discount, 2, '.', ','));
+                            $('span.coupon-name').text('(' + code + ')');
+                            $('input#coupon').val('');
+                            recompute();
+                        }
+                    }
+                });
+            });
         });
     </script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
 
-    console.log('Incomplete lead JS loaded');
-
-    const nameInput  = document.getElementById('first_name');
-    const phoneInput = document.getElementById('phone');
-    const leadUrl    = document.getElementById('lead_store_url')?.value;
-
-    if (!nameInput || !phoneInput || !leadUrl) {
-        console.error('Incomplete lead elements missing');
-        return;
-    }
-
-    let typingTimer;
-    const delay = 800;
-
-    function saveIncompleteLead() {
-        console.log('Saving lead...', nameInput.value, phoneInput.value);
-
-        fetch(leadUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document
-                    .querySelector('meta[name="csrf-token"]')
-                    .getAttribute('content')
-            },
-            body: JSON.stringify({
-                name: nameInput.value,
-                phone: phoneInput.value
-            })
-        })
-        .then(res => res.json())
-        .then(data => console.log('Saved:', data))
-        .catch(err => console.error('Fetch error:', err));
-    }
-
-    function handleTyping() {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(saveIncompleteLead, delay);
-    }
-
-    nameInput.addEventListener('keyup', handleTyping);
-    phoneInput.addEventListener('keyup', handleTyping);
-
-    window.addEventListener('beforeunload', saveIncompleteLead);
-});
-</script>
-
+    {{-- GA4 begin_checkout + incomplete-lead tracking --}}
+    <script>
+        $(document).ready(function() {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                "event": "begin_checkout",
+                "ecommerce": { "currency": "BDT", "value": {{ $sub_total }}, "items": [{ "item_id": "{{ $product->id }}", "item_name": @json($product->title), "price": {{ $request->dynamic_price }}, "quantity": {{ $request->qty }} }] }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('first_name');
+            const phoneInput = document.getElementById('phone');
+            const leadUrl = document.getElementById('lead_store_url')?.value;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!nameInput || !phoneInput || !leadUrl || !csrfToken) return;
+            let typingTimer;
+            function save() {
+                if (!nameInput.value && !phoneInput.value) return;
+                fetch(leadUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' }, body: JSON.stringify({ name: nameInput.value, phone: phoneInput.value, page_type: 'buy_now' }) }).catch(() => {});
+            }
+            function onType() { clearTimeout(typingTimer); typingTimer = setTimeout(save, 900); }
+            nameInput.addEventListener('keyup', onType);
+            phoneInput.addEventListener('keyup', onType);
+            window.addEventListener('beforeunload', save);
+        });
+    </script>
 @endpush
-
