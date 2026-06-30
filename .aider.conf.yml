@@ -1,0 +1,4 @@
+# Aider auto-loads no instruction file by name (CONVENTIONS.md is inert without wiring).
+# This loads AGENTS.md as a read-only, prompt-cache-friendly context file every session.
+# All rules live in AGENTS.md — edit them there, not here.
+read: AGENTS.md

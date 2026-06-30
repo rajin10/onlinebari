@@ -1,0 +1,72 @@
+/* Tailwind v4 — granular imports so global Preflight is OPT-IN during the
+   layer-on-top migration. tailwindcss/preflight.css is intentionally NOT imported
+   globally; each surface re-enables a scoped reset as it migrates. */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    /* ---- Typography: per-surface; default stays Instrument Sans ---- */
+    --font-sans:
+        "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+    --font-store: "Muli", var(--font-sans);
+    --font-dash: "Source Sans Pro", var(--font-sans);
+
+    /* ---- Brand primary: storefront orange #f85606 (anchor at 500) ---- */
+    --color-primary-50:  #fff3ec;
+    --color-primary-100: #ffe2d1;
+    --color-primary-200: #ffc4a3;
+    --color-primary-300: #ff9d6b;
+    --color-primary-400: #fd7233;
+    --color-primary-500: #f85606;
+    --color-primary-600: #e84a02;
+    --color-primary-700: #c03c06;
+    --color-primary-800: #98310d;
+    --color-primary-900: #7c2c0f;
+    --color-primary-950: #431304;
+    --color-primary: #f85606; /* literal, NOT var() — a var() reference in a theme
+                                 value is tree-shaken by Tailwind v4 (not counted as
+                                 "used"), which would make bg-primary transparent. */
+
+    /* ---- Secondary + status (literal values; mapped to today's colors) ---- */
+    --color-secondary: #1e293b; /* slate-800 */
+    --color-success:   #16a34a; /* green-600 */
+    --color-danger:    #dc2626; /* red-600 */
+    --color-warning:   #ffc107; /* amber */
+    --color-info:      #0284c7; /* sky-600 */
+
+    /* ---- Dashboard accent (gold) + stat-tile solids (match AdminLTE small-box) ---- */
+    --color-accent:       #f2d231;
+    --color-accent-fg:    #000000;
+    --color-tile-info:    #17a2b8;
+    --color-tile-warning: #ffc107;
+    --color-tile-success: #28a745;
+    --color-tile-primary: #007bff;
+    --color-tile-danger:  #dc3545;
+}
+
+/* Scoped reset for the rebuilt Tailwind dashboard shell (global Preflight stays off). */
+@layer base {
+    .dash-shell *, .dash-shell *::before, .dash-shell *::after { box-sizing: border-box; }
+    .dash-shell { margin: 0; -webkit-text-size-adjust: 100%; line-height: 1.5; }
+    .dash-shell h1, .dash-shell h2, .dash-shell h3, .dash-shell p { margin: 0; }
+    .dash-shell img { display: block; max-width: 100%; height: auto; }
+    .dash-shell ul { margin: 0; padding: 0; list-style: none; }
+    .dash-shell button { background: none; border: 0; cursor: pointer; font: inherit; color: inherit; }
+}
+
+/* Hide Alpine x-cloak elements until Alpine initialises (prevents submenu flash). */
+[x-cloak] { display: none !important; }
+
+
+/* Keep laravel-notify toasts above the dashboard sidebar/overlay (preserves the old layout's inline z-index). */
+.notify,
+div.fixed.inset-0.flex.items-end.justify-center { z-index: 999999; }
