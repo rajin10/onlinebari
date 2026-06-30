@@ -236,6 +236,40 @@
                 .authpro img {
                     border-color: rgba(28, 25, 23, 0.15) !important;
                 }
+
+                /* ===== Premium animated underline on nav links ===== */
+                .nav-categories > li > a,
+                .nav-categories > li > button.link-like {
+                    position: relative;
+                    padding: 8px 12px;
+                    transition: color 0.25s ease;
+                }
+
+                .nav-categories > li > a::after,
+                .nav-categories > li > button.link-like::after {
+                    content: '';
+                    position: absolute;
+                    left: 12px;
+                    right: 12px;
+                    bottom: 3px;
+                    height: 2px;
+                    border-radius: 2px;
+                    background: #c87d2a;
+                    transform: scaleX(0);
+                    transform-origin: left center;
+                    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                .nav-categories > li > a:hover::after,
+                .nav-categories > li > button.link-like:hover::after,
+                .nav-categories > li > a.active::after {
+                    transform: scaleX(1);
+                }
+
+                /* keep active links from also painting a heavy background pill */
+                .nav-categories > li > a.active {
+                    background: transparent !important;
+                }
             </style>
 
             <div class="nav-menus">

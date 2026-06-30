@@ -146,7 +146,7 @@
     <div class="mobile-bottom-nav__item">
             <a href="{{ route('cart') }}" class="mobile-bottom-nav__link" title="Cart" aria-label="Cart">
                 <i class="fal fa-shopping-basket"></i>
-                <span class="badge-foo" id="cartCount">{{ Cart::count() }}</span>
+                <span class="badge-foo cart-count" id="footerCartCount">{{ Cart::count() }}</span>
             <span class="mobile-bottom-nav__label">Cart</span>
             </a>
     </div>

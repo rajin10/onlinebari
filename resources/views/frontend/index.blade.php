@@ -1361,35 +1361,7 @@
     {{-- / Catgory Collups and Expand System --}}
 
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.ajax-lux-cart-btn').forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    let form = document.getElementById(btn.getAttribute('data-form-id'));
-                    if (!form) return;
-
-                    fetch(form.action, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').getAttribute('content'),
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: new FormData(form)
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            document.querySelectorAll('.cart-count').forEach(function(el) {
-                                if (data.count !== undefined) el.innerText = data.count;
-                            });
-                        })
-                        .catch(err => console.log(err));
-                });
-            });
-        });
-    </script>
+    {{-- Add-to-cart + Order Now are handled globally in layouts/frontend/app.blade.php --}}
 
 @endsection
 

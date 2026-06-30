@@ -511,40 +511,7 @@
         });
     });
 
-    // ── Lux add-to-cart AJAX ──
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.ajax-lux-cart-btn').forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                var form = document.getElementById(btn.getAttribute('data-form-id'));
-                if (!form) return;
-                btn.disabled    = true;
-                btn.textContent = 'Adding…';
-                fetch(form.action, {
-                    method:  'POST',
-                    headers: {
-                        'X-CSRF-TOKEN':     document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: new FormData(form)
-                })
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    btn.disabled    = false;
-                    btn.textContent = 'Add to Cart';
-                    if (typeof loadCartOnCanvas === 'function') loadCartOnCanvas();
-                    $.toast({
-                        heading:  data.alert === 'Congratulations' ? 'Congratulations' : 'Notice',
-                        text:     data.message,
-                        icon:     data.alert === 'Congratulations' ? 'success' : 'warning',
-                        position: 'top-right',
-                        stack:    false
-                    });
-                })
-                .catch(function () { btn.disabled = false; btn.textContent = 'Add to Cart'; });
-            });
-        });
-    });
+    // Lux add-to-cart + Order Now are handled globally in layouts/frontend/app.blade.php
     </script>
 
 @if(isset($slug))

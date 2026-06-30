@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Core\ShoppingCart\Facades\Cart;
 use App\Http\Controllers\Controller;
+use App\Models\Attribute;
+use App\Models\CampaingProduct;
+use App\Models\CartInfo;
+use App\Models\Color;
 use App\Models\Coupon;
 use App\Models\Product;
-use App\Core\ShoppingCart\Facades\Cart;
 use Illuminate\Http\Request;
-use App\Models\Attribute;
-use App\Models\CartInfo;
-use App\Models\CampaingProduct;
-use App\Models\Color;
-use App\Models\AttributeValue;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
@@ -26,20 +25,20 @@ class CartController extends Controller
     public function addToCart(Request $request)
     {
         $this->validate($request, [
-            'id'    => 'required|integer',
-            'qty'   => 'required|integer',
+            'id' => 'required|integer',
+            'qty' => 'required|integer',
             'color' => 'nullable|string|max:20',
-            'size'  => 'nullable|string|max:20'
+            'size' => 'nullable|string|max:20',
         ]);
-        $attr=[];
-        $price=0;
+        $attr = [];
+        $price = 0;
         $product = Product::findOrFail($request->id);
         // $attributes = Attribute::all();
         // if($product->colors->count()>0 && $request->color=='blank' && false){ // Hridoy added false
         //      return response()->json([
         //         'alert'    => 'Warning',
         //         'message'  => 'Please Choose a Colour',
-                
+
         //     ]);
         // }
         // foreach ($attributes as $attribute){
@@ -49,7 +48,7 @@ class CartController extends Controller
         //         return response()->json([
         //         'alert'    => 'Warning',
         //         'message'  => 'Sorry,Please Fill All Attribute',
-                
+
         //         ]);
         //     }
         // }
@@ -82,41 +81,41 @@ class CartController extends Controller
         //     $price+=$color->price;
         // }
         // }
-        if(isset($request->camp)){
-           $camp= CampaingProduct::find($request->camp);
-           $op=$camp->price;
-        }elseif(empty($product->discount_price)){
-           $op= $product->regular_price;
-        }else{
-            $op=$product->discount_price;
+        if (isset($request->camp)) {
+            $camp = CampaingProduct::find($request->camp);
+            $op = $camp->price;
+        } elseif (empty($product->discount_price)) {
+            $op = $product->regular_price;
+        } else {
+            $op = $product->discount_price;
         }
-        $cart=Cart::add([
-            'id'        => $product->id, 
-            'name'      => $product->title, 
-          
-            'qty'       => $request->qty, 
-            'price'     => $op+$price,
-            'weight'    => $product->user_id,
-            'options'   => [
-                'slug'     => $product->slug, 
-                'image'    => $product->image, 
-                'attributes'     => $attr??Null,
-                'color'    => $request->color,
-                'vendor'      => $product->user_id, 
-                'seller'      => $product->user->name, 
+        $cart = Cart::add([
+            'id' => $product->id,
+            'name' => $product->title,
+
+            'qty' => $request->qty,
+            'price' => $op + $price,
+            'weight' => $product->user_id,
+            'options' => [
+                'slug' => $product->slug,
+                'image' => $product->image,
+                'attributes' => $attr ?? null,
+                'color' => $request->color,
+                'vendor' => $product->user_id,
+                'seller' => $product->user->name,
             ],
-            
+
         ]);
-        if(auth()->id()){
+        if (auth()->id()) {
             CartInfo::create([
-                'user_id'=>auth()->id(),
-                'vendor'      => $product->user_id, 
-                'ser'=>$cart->rowId,
-                'product_id'=>$product->id,
-                'qty'=>$request->qty,
-                'price'=>$op+$price,
-                'color'=>$request->color,
-                'attr'=> json_encode($attr)??Null,
+                'user_id' => auth()->id(),
+                'vendor' => $product->user_id,
+                'ser' => $cart->rowId,
+                'product_id' => $product->id,
+                'qty' => $request->qty,
+                'price' => $op + $price,
+                'color' => $request->color,
+                'attr' => json_encode($attr) ?? null,
             ]);
         }
 
@@ -129,15 +128,15 @@ class CartController extends Controller
     }
 
     // get cart data
-    public function getCart() {
-        
-        $cartCollection= Cart::content();
-        $data= $cartCollection->sortBy('weight');
-         
-        
+    public function getCart()
+    {
+
+        $cartCollection = Cart::content();
+        $data = $cartCollection->sortBy('weight');
+
         return response()->json([
             'count' => Cart::count(),
-            'carts' => $data
+            'carts' => $data,
         ]);
     }
 
@@ -145,8 +144,9 @@ class CartController extends Controller
     public function updateCart($rowId, $qty)
     {
         Cart::update($rowId, ['qty' => $qty]);
+
         return response()->json([
-            'alert'   => 'Success',
+            'alert' => 'Success',
             'message' => 'Quantity update successfully',
         ]);
     }
@@ -155,174 +155,196 @@ class CartController extends Controller
     public function destroyCart($rowId)
     {
         Cart::remove($rowId);
-        $cart=CartInfo::where('ser',$rowId)->delete();
+        $cart = CartInfo::where('ser', $rowId)->delete();
+
         return response()->json([
-            'alert'   => 'Success',
+            'alert' => 'Success',
             'message' => 'Product successfully remove to cart',
         ]);
     }
-    
+
     /**
      * apply coupon
      *
-     * @param  mixed $code
+     * @param  mixed  $code
      * @return void
      */
-    public function applyCoupon($code,$stotal)
+    public function applyCoupon($code, $stotal)
     {
         $coupon = Coupon::where('code', $code)->where('status', true)->where('expire_date', '>=', date('Y-m-d'))->first();
-        
-        if($coupon){
+
+        if ($coupon) {
             if ($coupon->available_limit > 0) {
                 $coupon_limit = DB::table('coupon_user')->where('user_id', auth()->id())->where('coupon_id', $coupon->id)->get();
-                
+
                 if ($coupon_limit->count() < $coupon->limit_per_user) {
-                    
-                    if(Session::has('coupon')){
+
+                    if (Session::has('coupon')) {
                         return response()->json([
                             'message' => 'Already applied this coupon code.',
-                            'alert'   => 'error',
+                            'alert' => 'error',
                         ]);
                     }
 
                     $subtotal = $stotal;
                     if ($coupon->discount_type == 'percent') {
-                        $discount  = (floatval($coupon->discount) / 100) * $subtotal;
-                    } 
-                    else {
+                        $discount = (floatval($coupon->discount) / 100) * $subtotal;
+                    } else {
                         $discount = $coupon->discount;
                     }
-                    
+
                     Session::put('coupon', [
-                        'name'     => $coupon->code,
-                        'discount' => $discount
+                        'name' => $coupon->code,
+                        'discount' => $discount,
                     ]);
                     $coupon->users()->attach(auth()->id());
                     $coupon->update([
-                        'available_limit' => $coupon->available_limit - 1
+                        'available_limit' => $coupon->available_limit - 1,
                     ]);
+
                     return response()->json([
-                        'message'  => 'Successfully apply coupon',
-                        'alert'    => 'success',
-                        'total'    => $subtotal - $discount,
-                        'discount' => $discount
+                        'message' => 'Successfully apply coupon',
+                        'alert' => 'success',
+                        'total' => $subtotal - $discount,
+                        'discount' => $discount,
                     ]);
                 }
+
                 return response()->json([
                     'message' => 'Your coupon use limit not available, already use '.auth()->user()->coupons()->count().' time',
-                    'alert'   => 'error',
+                    'alert' => 'error',
                 ]);
             }
+
             return response()->json([
                 'message' => 'Coupon Limit Not Available',
-                'alert'   => 'error',
+                'alert' => 'error',
             ]);
         }
+
         return response()->json([
             'message' => 'Invalid Coupon Code!!',
             'alert' => 'error',
         ]);
     }
-    
+
     /**
      * apply coupon buy now product
      *
-     * @param  mixed $code
+     * @param  mixed  $code
      * @return void
      */
-    public function applyCouponBuyNow($code, $id, $qty,$dynamic)
+    public function applyCouponBuyNow($code, $id, $qty, $dynamic)
     {
         $coupon = Coupon::where('code', $code)->where('status', true)->where('expire_date', '>=', date('Y-m-d'))->first();
-        
-        if($coupon){
+
+        if ($coupon) {
             if ($coupon->available_limit > 0) {
                 $coupon_limit = DB::table('coupon_user')->where('user_id', auth()->id())->where('coupon_id', $coupon->id)->get();
-                
+
                 if ($coupon_limit->count() < $coupon->limit_per_user) {
-                    
-                    if(Session::has('coupon')){
+
+                    if (Session::has('coupon')) {
                         return response()->json([
                             'message' => 'Already applied this coupon code.',
-                            'alert'   => 'error'
+                            'alert' => 'error',
                         ]);
                     }
                     $product = Product::find($id);
                     if ($product) {
-                        if($qty>=6 && $product->whole_price >0){
+                        if ($qty >= 6 && $product->whole_price > 0) {
                             $subtotal = $product->whole_price * $qty;
-                        }else{
+                        } else {
                             $subtotal = $dynamic * $qty;
                         }
                         if ($coupon->discount_type == 'percent') {
-                            $discount  = (floatval($coupon->discount) / 100) * $subtotal;
-                        } 
-                        else {
+                            $discount = (floatval($coupon->discount) / 100) * $subtotal;
+                        } else {
                             $discount = $coupon->discount;
                         }
-                        
+
                         Session::put('coupon', [
-                            'name'     => $coupon->code,
-                            'discount' => $discount
+                            'name' => $coupon->code,
+                            'discount' => $discount,
                         ]);
                         $coupon->users()->attach(auth()->id());
                         $coupon->update([
-                            'available_limit' => $coupon->available_limit - 1
+                            'available_limit' => $coupon->available_limit - 1,
                         ]);
+
                         return response()->json([
-                            'message'  => 'Successfully apply coupon',
-                            'alert'    => 'success',
-                            'total'    => $subtotal - $discount,
-                            'discount' => $discount
+                            'message' => 'Successfully apply coupon',
+                            'alert' => 'success',
+                            'total' => $subtotal - $discount,
+                            'discount' => $discount,
                         ]);
                     }
+
                     return response()->json([
                         'message' => 'Sorry something wrong'.$id,
-                        'alert'   => 'error'
+                        'alert' => 'error',
                     ]);
                 }
+
                 return response()->json([
                     'message' => 'Your coupon use limit not available, already use '.auth()->user()->coupons()->count().' time',
-                    'alert'   => 'error'
+                    'alert' => 'error',
                 ]);
             }
+
             return response()->json([
                 'message' => 'Coupon Limit Not Available',
-                'alert'   => 'error'
+                'alert' => 'error',
             ]);
         }
+
         return response()->json([
             'message' => 'Invalid Coupon Code!!',
-            'alert' => 'error'
+            'alert' => 'error',
         ]);
     }
-    
-    # Hridoy
+
+    // Hridoy
     public function get_off_canvas_cart()
     {
-        $cartCollection= Cart::content();
-        $carts= $cartCollection->sortBy('weight');
-        
+        $cartCollection = Cart::content();
+        $carts = $cartCollection->sortBy('weight');
+
         $count = Cart::count();
-        
+
         return response()->json([
-            'html' => view('layouts.frontend.partials.cart_off_canvas', compact('count', 'carts'))->render()
+            'html' => view('layouts.frontend.partials.cart_off_canvas', compact('count', 'carts'))->render(),
         ]);
     }
-    
+
+    // Lightweight mini-cart dropdown (header)
+    public function miniCart()
+    {
+        $carts = Cart::content()->sortBy('weight');
+        $count = Cart::count();
+        $total = array_sum(array_column($carts->toArray(), 'subtotal'));
+
+        return response()->json([
+            'count' => $count,
+            'total' => $total,
+            'html' => view('layouts.frontend.partials.mini-cart', compact('carts', 'count', 'total'))->render(),
+        ]);
+    }
+
     public function compare()
     {
         return view('frontend.compare');
     }
-    
+
     public function addToCompare(Request $request)
     {
         $this->validate($request, ['id' => 'required|integer']);
-    
+
         $product = Product::findOrFail($request->id);
-    
+
         $compareList = session()->get('compare', []);
-    
-        if (!array_key_exists($product->id, $compareList)) {
+
+        if (! array_key_exists($product->id, $compareList)) {
             $compareList[$product->id] = [
                 'id' => $product->id,
                 'title' => $product->title,
@@ -332,9 +354,9 @@ class CartController extends Controller
                 'image' => $product->image,
                 'sku' => $product->sku,
             ];
-    
+
             session()->put('compare', $compareList);
-    
+
             return response()->json([
                 'alert' => 'success',
                 'message' => 'Product added to compare successfully.',
@@ -347,20 +369,3 @@ class CartController extends Controller
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

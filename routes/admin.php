@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\attributeController;
 use App\Http\Controllers\Admin\chatController;
 use App\Http\Controllers\Admin\CustomOrderController;
+use App\Http\Controllers\Admin\Ecommerce\AnnouncementController;
 use App\Http\Controllers\Admin\Ecommerce\AuthController;
 use App\Http\Controllers\Admin\Ecommerce\BannerController;
 use App\Http\Controllers\Admin\Ecommerce\BrandController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\Ecommerce\ColorController;
 use App\Http\Controllers\Admin\Ecommerce\CouponController;
 use App\Http\Controllers\Admin\Ecommerce\CustomerController;
 use App\Http\Controllers\Admin\Ecommerce\DashboardController;
+use App\Http\Controllers\Admin\Ecommerce\HomepageVideoController;
 use App\Http\Controllers\Admin\Ecommerce\NewSliderController;
 use App\Http\Controllers\Admin\Ecommerce\OrderController;
 use App\Http\Controllers\Admin\Ecommerce\ProductController;
@@ -33,8 +35,8 @@ use App\Http\Controllers\Frontend\IncompleteLeadController;
 use App\Http\Controllers\pageController;
 use App\Http\Controllers\subscriptionController;
 use App\Http\Controllers\SystemController;
-use App\Http\Controllers\WithdrawController;
 // use App\Http\Controllers\Admin\POSController;
+use App\Http\Controllers\WithdrawController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -72,7 +74,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('sub-category', SubCategoryController::class);
 
     Route::resource('slider', SliderController::class);
-    Route::resource('video', \App\Http\Controllers\Admin\Ecommerce\HomepageVideoController::class);
+    Route::resource('video', HomepageVideoController::class);
     Route::resource('banner', BannerController::class);
 
     Route::resource('sliderone', NewSliderController::class);
@@ -81,6 +83,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('size', SizeController::class)->except('show');
     Route::resource('tag', TagController::class)->except('show');
     Route::resource('coupon', CouponController::class);
+
+    // Announcement bar + floating WhatsApp + trust-bar control
+    Route::post('announcement/save-settings', [AnnouncementController::class, 'saveSettings'])->name('announcement.save-settings');
+    Route::patch('announcement/{announcement}/toggle', [AnnouncementController::class, 'toggle'])->name('announcement.toggle');
+    Route::resource('announcement', AnnouncementController::class)->except('show');
 
     Route::post('/n-category', [CategoryController::class, 'nCat'])->name('ncat');
     Route::post('/n-scategory', [SubCategoryController::class, 'nsCat'])->name('nscat');
@@ -281,13 +288,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     });
 
     Route::group(['as' => 'connection.', 'prefix' => 'connection'], function () {
-        Route::get('/live-chat', [ChatController::class, 'index'])->name('live.chat');
-        Route::get('/live-chat/new-sms/count', [ChatController::class, 'countNewMessage'])->name('live.chat.new-sms.count');
-        Route::get('/live-chat-user-list', [ChatController::class, 'liveChatUserList'])->name('live.chat.user.list');
-        Route::get('/live-chat-list', [ChatController::class, 'liveChatList'])->name('live.chat.list');
-        Route::get('/live-chat-list/{id}', [ChatController::class, 'liveChatListById']);
-        Route::post('/live-chat', [ChatController::class, 'storeLiveChatForm'])->name('store.chat');
-        Route::get('/live-chat/status/{id}', [ChatController::class, 'updateStatus']);
+        Route::get('/live-chat', [chatController::class, 'index'])->name('live.chat');
+        Route::get('/live-chat/new-sms/count', [chatController::class, 'countNewMessage'])->name('live.chat.new-sms.count');
+        Route::get('/live-chat-user-list', [chatController::class, 'liveChatUserList'])->name('live.chat.user.list');
+        Route::get('/live-chat-list', [chatController::class, 'liveChatList'])->name('live.chat.list');
+        Route::get('/live-chat-list/{id}', [chatController::class, 'liveChatListById']);
+        Route::post('/live-chat', [chatController::class, 'storeLiveChatForm'])->name('store.chat');
+        Route::get('/live-chat/status/{id}', [chatController::class, 'updateStatus']);
     });
 
     Route::get('shop', [SettingController::class, 'showShop'])->name('shop');

@@ -176,36 +176,71 @@
         font-weight: 500;
     }
 
-    /* ── ADD TO CART BUTTON ── */
-    @keyframes lux-rainbow-border {
-        0%     { border-color: #ff0000; box-shadow: 0 0 8px rgba(255,0,0,.45); }
-        16.67% { border-color: #ff7f00; box-shadow: 0 0 8px rgba(255,127,0,.45); }
-        33.33% { border-color: #e6c200; box-shadow: 0 0 8px rgba(230,194,0,.45); }
-        50%    { border-color: #00cc44; box-shadow: 0 0 8px rgba(0,204,68,.45); }
-        66.67% { border-color: #0055ff; box-shadow: 0 0 8px rgba(0,85,255,.45); }
-        83.33% { border-color: #6600cc; box-shadow: 0 0 8px rgba(102,0,204,.45); }
-        100%   { border-color: #ff0000; box-shadow: 0 0 8px rgba(255,0,0,.45); }
+    /* ── CTA BUTTONS (premium) ── */
+    .lux-cta-form { margin: 0; }
+
+    .lux-cta-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
     }
-    .lux-add-to-cart {
-        padding: 9px 18px;
-        border: 1.5px solid #000;
-        border-radius: 7px;
-        background: #000;
-        color: #fff;
-        font-size: 13px;
-        font-weight: 500;
+
+    .lux-add-to-cart,
+    .lux-order-now {
+        flex: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 46px;
+        padding: 0 14px;
+        border-radius: 10px;
+        font-size: 13.5px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
         cursor: pointer;
-        transition: background 0.25s ease;
-        animation: lux-rainbow-border 3s linear infinite;
         white-space: nowrap;
+        transition: transform 0.2s ease, box-shadow 0.25s ease, background 0.25s ease, color 0.2s ease;
+    }
+
+    /* Secondary: Add to Cart (outline → fill on hover) */
+    .lux-add-to-cart {
+        border: 1.5px solid #1c1917;
+        background: #fff;
+        color: #1c1917;
     }
     .lux-add-to-cart:hover {
-        background: #222;
+        background: #1c1917;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(28, 25, 23, 0.18);
     }
-    .lux-add-to-cart:disabled {
-        opacity: 0.65;
+    .lux-add-to-cart svg { width: 17px; height: 17px; }
+
+    /* Primary CTA: অর্ডার করুন (instant checkout) */
+    .lux-order-now {
+        border: 1.5px solid transparent;
+        background: linear-gradient(135deg, #f85606 0%, #e0490a 100%);
+        color: #fff;
+        box-shadow: 0 6px 16px rgba(248, 86, 6, 0.28);
+    }
+    .lux-order-now:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(248, 86, 6, 0.42);
+        color: #fff;
+    }
+    .lux-order-now:active { transform: translateY(0); }
+
+    .lux-add-to-cart:disabled,
+    .lux-order-now:disabled {
+        opacity: 0.6;
         cursor: not-allowed;
-        animation: none;
+        transform: none;
+    }
+
+    @media (max-width: 420px) {
+        .lux-cta-row { flex-direction: column; }
+        .lux-add-to-cart, .lux-order-now { height: 44px; }
     }
 
     /* ── RESPONSIVE THUMB HEIGHT ── */
@@ -260,16 +295,23 @@
 
         <div class="lux-purchase-row">
             <p class="lux-product-price">৳ {{ number_format($price) }}</p>
+        </div>
 
-            <form id="lux-cart-form-{{ $product->id }}" action="{{ route('add.cart') }}" method="POST">
-                @csrf
-                <input type="hidden" name="id"  value="{{ $product->id }}">
-                <input type="hidden" name="qty" value="1">
+        <form id="lux-cart-form-{{ $product->id }}" action="{{ route('add.cart') }}" method="POST" class="lux-cta-form">
+            @csrf
+            <input type="hidden" name="id"  value="{{ $product->id }}">
+            <input type="hidden" name="qty" value="1">
+            <div class="lux-cta-row">
                 <button type="button" class="lux-add-to-cart ajax-lux-cart-btn"
                         data-form-id="lux-cart-form-{{ $product->id }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     Add to Cart
                 </button>
-            </form>
-        </div>
+                <button type="button" class="lux-order-now order-now-btn"
+                        data-form-id="lux-cart-form-{{ $product->id }}">
+                    অর্ডার করুন
+                </button>
+            </div>
+        </form>
     </div>
 </div>

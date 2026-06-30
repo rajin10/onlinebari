@@ -417,11 +417,11 @@
             background: var(--accent);
         }
 
-        /* Mobile Search Button Enhancement */
+        /* Search trigger button (icon opens the search overlay on all breakpoints) */
         #mobileSearchBtn {
-            width: 52px;
-            height: 52px;
-            display: none;
+            width: 42px;
+            height: 42px;
+            display: inline-flex;
         }
 
         /* Responsive */
@@ -825,6 +825,353 @@
                 padding-top: 58px !important;
             }
         }
+
+        /* ============================================================
+           PREMIUM HEADER REFINEMENTS (logo · hamburger · mini-cart)
+        ============================================================ */
+
+        /* Crisper, larger logo with comfortable padding */
+        .logo-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 0;
+        }
+
+        .logo-link img {
+            image-rendering: -webkit-optimize-contrast;
+            border-radius: 0;
+            background: transparent;
+            filter: none;
+        }
+
+        .main-header:not(.is-sticky) .logo-link img {
+            height: 78px !important;
+            max-height: 84px !important;
+        }
+
+        .main-header.is-sticky .logo-link img {
+            height: 62px !important;
+            max-height: 66px !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-header:not(.is-sticky) .logo-link img {
+                height: 50px !important;
+                max-height: 54px !important;
+            }
+
+            .main-header.is-sticky .logo-link img {
+                height: 44px !important;
+                max-height: 48px !important;
+            }
+        }
+
+        /* Mobile hamburger (opens existing mobile sidebar) */
+        .hdr-hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            width: 40px;
+            height: 40px;
+            padding: 0 8px;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background 0.2s ease;
+        }
+
+        .hdr-hamburger:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .hdr-hamburger span {
+            display: block;
+            height: 2px;
+            width: 22px;
+            background: #1c1917;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 991px) {
+            .hdr-hamburger {
+                display: inline-flex !important;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .hdr-hamburger {
+                display: none !important;
+            }
+        }
+
+        /* Tap-friendly action targets */
+        .hdr-right .action {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        .hdr-right .action:hover {
+            background: rgba(0, 0, 0, 0.05);
+            transform: translateY(-1px);
+        }
+
+        /* ---- Mini-cart dropdown ---- */
+        .cart-wrap {
+            position: relative;
+        }
+
+        .mini-cart {
+            position: absolute;
+            top: calc(100% + 14px);
+            right: -6px;
+            width: 360px;
+            max-width: 92vw;
+            background: #fff;
+            border: 1px solid #efeae3;
+            border-radius: 14px;
+            box-shadow: 0 18px 50px rgba(28, 25, 23, 0.16);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(8px);
+            transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+            z-index: 1400;
+            overflow: hidden;
+        }
+
+        .mini-cart::before {
+            content: '';
+            position: absolute;
+            top: -7px;
+            right: 22px;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-left: 1px solid #efeae3;
+            border-top: 1px solid #efeae3;
+            transform: rotate(45deg);
+        }
+
+        .cart-wrap.open .mini-cart {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mini-cart__loading {
+            padding: 28px;
+            text-align: center;
+            color: #9a938b;
+            font-size: 13px;
+        }
+
+        .mini-cart__head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1ece5;
+        }
+
+        .mini-cart__title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1c1917;
+        }
+
+        .mini-cart__count {
+            font-size: 12px;
+            color: #8a837b;
+            background: #f6f3ef;
+            padding: 2px 9px;
+            border-radius: 999px;
+        }
+
+        .mini-cart__items {
+            max-height: 320px;
+            overflow-y: auto;
+            padding: 6px 8px;
+        }
+
+        .mini-cart__item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 9px 8px;
+            border-radius: 10px;
+            transition: background 0.15s ease;
+        }
+
+        .mini-cart__item:hover {
+            background: #faf8f5;
+        }
+
+        .mini-cart__thumb {
+            flex-shrink: 0;
+            width: 52px;
+            height: 52px;
+            border-radius: 9px;
+            overflow: hidden;
+            background: #f5f3f0;
+            display: block;
+        }
+
+        .mini-cart__thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mini-cart__meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .mini-cart__name {
+            display: block;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: #1c1917;
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mini-cart__name:hover {
+            color: #c87d2a;
+        }
+
+        .mini-cart__qty {
+            font-size: 12px;
+            color: #8a837b;
+        }
+
+        .mini-cart__line {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .mini-cart__subtotal {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1c1917;
+            white-space: nowrap;
+        }
+
+        .mini-cart__remove {
+            border: 0;
+            background: transparent;
+            color: #c0b9b0;
+            font-size: 17px;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.15s ease;
+        }
+
+        .mini-cart__remove:hover {
+            color: #e23b3b;
+        }
+
+        .mini-cart__foot {
+            padding: 14px 16px;
+            border-top: 1px solid #f1ece5;
+            background: #fbfaf8;
+        }
+
+        .mini-cart__total {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1c1917;
+            margin-bottom: 12px;
+        }
+
+        .mini-cart__actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .mini-cart__btn {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 42px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .mini-cart__btn--ghost {
+            border: 1.5px solid #e4ded6;
+            color: #44403c;
+            background: #fff;
+        }
+
+        .mini-cart__btn--ghost:hover {
+            border-color: #1c1917;
+            color: #1c1917;
+        }
+
+        .mini-cart__btn--solid {
+            background: #1c1917;
+            color: #fff;
+        }
+
+        .mini-cart__btn--solid:hover {
+            background: #c87d2a;
+            color: #fff;
+        }
+
+        .mini-cart__empty {
+            padding: 34px 20px;
+            text-align: center;
+            color: #9a938b;
+        }
+
+        .mini-cart__empty p {
+            margin: 10px 0 16px;
+            font-size: 14px;
+        }
+
+        .mini-cart__empty .mini-cart__btn {
+            display: inline-flex;
+            padding: 0 22px;
+            flex: none;
+        }
+
+        @media (max-width: 991px) {
+            .mini-cart {
+                display: none !important;
+            }
+        }
+
+        /* Cart badge bounce on update */
+        .badge.cart-count.updated {
+            animation: cartBounce 0.5s ease;
+        }
+
+        /* Fallback content offset (JS sets the exact value at runtime) */
+        .site-inner {
+            padding-top: 96px;
+        }
+
+        @media (max-width: 767px) {
+            .site-inner {
+                padding-top: 74px !important;
+            }
+        }
     </style>
 
     <!--{{-- Optional Top info (desktop only) --}}
@@ -847,15 +1194,13 @@
     <div class="main-header">
         <div class="header-row container">
 
-            <div class="mobile-cart-openar mobile-only">
-                <a href="{{ route('cart') }}" class="mobile-cart-button" aria-label="Cart">
-                    <img src="{{ asset('assets/frontend/images/cart-icon.png') }}" alt="Cart"
-                        style="width:22px; height:22px; object-fit:contain;">
-                </a>
-            </div>
-
-            {{-- LEFT: Logo --}}
+            {{-- LEFT: hamburger (mobile) + Logo --}}
             <div class="hdr-left">
+                <button type="button" class="hdr-hamburger mobile-only" data-open-mobile-sidebar
+                    aria-label="Open menu">
+                    <span></span><span></span><span></span>
+                </button>
+
                 <a class="logo-link" href="{{ route('home') }}" aria-label="Go to homepage">
                     <img src="{{ asset('uploads/setting/' . setting('logo')) }}"
                         alt="{{ setting('site_title') ?? config('app.name', 'Store') }}"
@@ -875,7 +1220,7 @@
                 @endif
             </div>
 
-            {{-- RIGHT: icons + hamburger (mobile-only, last) --}}
+            {{-- RIGHT: action icons --}}
             <div class="hdr-right">
                 {{-- Search --}}
                 <button type="button" class="action" id="mobileSearchBtn" aria-label="Search">
@@ -890,12 +1235,18 @@
                         style="width:22px; height:22px; object-fit:contain;">
                 </a>
 
-
-                {{-- Cart --}}
-                <a href="{{ route('cart') }}" class="action" title="Cart" aria-label="Cart">
-                    <img src="{{ asset('assets/frontend/images/cart-icon.png') }}" alt="Cart" style="width:24px;">
-                    <span class="badge" id="cartCount">{{ Cart::count() }}</span>
-                </a>
+                {{-- Cart + mini-cart dropdown --}}
+                <div class="cart-wrap" id="cartWrap">
+                    <a href="{{ route('cart') }}" class="action cart-trigger" title="Cart" aria-label="Cart">
+                        <img src="{{ asset('assets/frontend/images/cart-icon.png') }}" alt="Cart" style="width:24px;">
+                        <span class="badge cart-count" id="cartCount">{{ Cart::count() }}</span>
+                    </a>
+                    <div class="mini-cart" id="miniCart" aria-hidden="true" role="dialog" aria-label="Mini cart">
+                        <div class="mini-cart__inner" id="miniCartInner">
+                            <div class="mini-cart__loading">Loading…</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -1061,5 +1412,46 @@
                 });
 
             }); /* DOMContentLoaded */
+        </script>
+    @endpush
+
+    @push('js')
+        <script>
+            /* ---- Mini-cart dropdown (hover preview on desktop) ---- */
+            (function () {
+                var wrap = document.getElementById('cartWrap');
+                var panel = document.getElementById('miniCart');
+                var inner = document.getElementById('miniCartInner');
+                if (!wrap || !panel || !inner) return;
+
+                var loaded = false;
+                var hideTimer = null;
+                var isDesktop = function () { return window.matchMedia('(min-width: 992px)').matches; };
+
+                function load(force) {
+                    if (loaded && !force) return Promise.resolve();
+                    return fetch('{{ route('mini-cart') }}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function (r) { return r.json(); })
+                        .then(function (d) {
+                            inner.innerHTML = d.html;
+                            loaded = true;
+                            document.querySelectorAll('.cart-count').forEach(function (el) { el.textContent = d.count; });
+                        })
+                        .catch(function () {});
+                }
+
+                // exposed so the add-to-cart handler can refresh after changes
+                window.refreshMiniCart = function () { return load(true); };
+
+                function open() { clearTimeout(hideTimer); load(false); wrap.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
+                function close() { wrap.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+
+                wrap.addEventListener('mouseenter', function () { if (isDesktop()) open(); });
+                wrap.addEventListener('mouseleave', function () { if (isDesktop()) hideTimer = setTimeout(close, 220); });
+                document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) close(); });
+
+                // expose for the global add-to-cart handler to pop the preview
+                window.openMiniCart = function () { if (isDesktop()) { load(true).then(open); } };
+            })();
         </script>
     @endpush

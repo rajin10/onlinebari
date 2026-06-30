@@ -159,6 +159,10 @@
                             onclick="window.location='{{ url('admin/coupon') }}'">
                             <i class="bx bx-cut"></i> Coupons
                         </li>
+                        <li class="{{ $navActive('admin/announcement*') }}"
+                            onclick="window.location='{{ url('admin/announcement') }}'">
+                            <i class="bx bx-megaphone"></i> Announcement Bar
+                        </li>
                     </ul>
                 </div>
 

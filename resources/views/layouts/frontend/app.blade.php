@@ -212,6 +212,9 @@
         </style>
     @endif
 
+   {{-- Premium announcement bar (backend-controlled) --}}
+    @include('layouts.frontend.partials.announcement-bar')
+
    {{-- Site header (full width) --}}
     <header class="site-header app-header">
         @if (!empty(setting('TOP_HEADER_STYLE')))
@@ -220,9 +223,10 @@
             @include('layouts.frontend.partials.header_1')
         @endif
     </header>
-    
+
     {{-- Main site inner content (centered, max-width: 1400px) --}}
     <main class="site-inner" role="main" id="main-content">
+        <x-trust-strip />
         @yield('content')
     </main>
 
@@ -370,6 +374,94 @@
     window.addEventListener('pagehide', sendLeave);
 })();
 </script>
+
+    {{-- Floating WhatsApp CTA (backend-controlled) --}}
+    <x-whatsapp-float />
+
+    {{-- Global cart UX: dynamic header offset + AJAX add-to-cart + instant "Order Now" --}}
+    <script>
+        (function () {
+            /* ---- Dynamic header / announcement offset (prevents content overlap) ---- */
+            function offsetEl() {
+                var s = document.getElementById('dyn-offset');
+                if (!s) { s = document.createElement('style'); s.id = 'dyn-offset'; document.head.appendChild(s); }
+                return s;
+            }
+            function setOffset() {
+                var header = document.querySelector('.main-header');
+                if (!header) return;
+                var bar = document.querySelector('.announcement-bar');
+                var barH = (bar && getComputedStyle(bar).display !== 'none' && !document.body.classList.contains('ann-up'))
+                    ? bar.getBoundingClientRect().height : 0;
+                var headH = header.getBoundingClientRect().height;
+                offsetEl().textContent = 'body .site-inner{padding-top:' + Math.round(barH + headH) + 'px !important;}';
+            }
+            window.addEventListener('load', setOffset);
+            window.addEventListener('resize', function () { if (window.scrollY < 5) setOffset(); });
+            document.addEventListener('DOMContentLoaded', setOffset);
+            setTimeout(setOffset, 350);
+
+            /* ---- Cart helpers ---- */
+            function bumpCounts(count) {
+                document.querySelectorAll('.cart-count').forEach(function (el) {
+                    if (count !== undefined && count !== null) el.textContent = count;
+                    el.classList.add('updated');
+                    setTimeout(function () { el.classList.remove('updated'); }, 520);
+                });
+            }
+            function toast(msg) {
+                var n = document.getElementById('cartNotification');
+                var t = document.getElementById('cartNotificationText');
+                if (!n) return;
+                if (t && msg) t.textContent = msg;
+                n.style.display = 'flex';
+                n.classList.add('show');
+                clearTimeout(n._timer);
+                n._timer = setTimeout(function () { n.classList.remove('show'); n.style.display = 'none'; }, 2200);
+            }
+            function addToCart(form) {
+                return fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new FormData(form)
+                }).then(function (r) { return r.json(); });
+            }
+
+            /* ---- Add to Cart (delegated, works on every page) ---- */
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.ajax-lux-cart-btn');
+                if (!btn) return;
+                e.preventDefault();
+                var form = document.getElementById(btn.getAttribute('data-form-id'));
+                if (!form) return;
+                btn.disabled = true;
+                addToCart(form).then(function (data) {
+                    bumpCounts(data && data.count);
+                    toast('Added to cart!');
+                    if (window.refreshMiniCart) window.refreshMiniCart();
+                    if (window.openMiniCart) window.openMiniCart();
+                }).catch(function () {}).finally(function () { btn.disabled = false; });
+            });
+
+            /* ---- Order Now → add then go straight to checkout ---- */
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('.order-now-btn');
+                if (!btn) return;
+                e.preventDefault();
+                var form = document.getElementById(btn.getAttribute('data-form-id'));
+                if (!form) return;
+                var original = btn.innerHTML;
+                btn.disabled = true;
+                btn.textContent = 'প্রসেসিং...';
+                addToCart(form)
+                    .then(function () { window.location = "{{ route('checkout') }}"; })
+                    .catch(function () { btn.disabled = false; btn.innerHTML = original; });
+            });
+        })();
+    </script>
 
 </body>
 
