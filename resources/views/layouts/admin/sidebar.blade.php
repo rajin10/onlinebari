@@ -10,7 +10,7 @@
 
             <div class="profile">
                 <div>
-                    <h4 class="text-lg">ANAS LUXY WORLD</h4>
+                    <h4 class="text-lg">Onlinebari</h4>
                     <p>Admin Panel</p>
                 </div>
             </div>
