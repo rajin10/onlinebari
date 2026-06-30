@@ -15,7 +15,7 @@
     // Section name wins (per-category sections), else the product's own category.
     $categoryName = $category
         ?? optional($product->categories->first())->name
-        ?? 'Cozy Lighting';
+        ?? 'Onlinebari';
 
     // Dynamic rating from the product's reviews.
     $reviewCount = $product->reviews->count();

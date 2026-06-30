@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                     <p class="text-center col-12">
                         <a target="_blank" href="https://eurekaavenue.com/" style="color:white;text-decoration:none;text-align:center;d isplay:block; margin:0; color:white;">
-                           © Anasluxyworld. All Rights Reserved<span id="year"></span>
+                           © Onlinebari. All Rights Reserved<span id="year"></span>
                         </a>
                     </p>
                 

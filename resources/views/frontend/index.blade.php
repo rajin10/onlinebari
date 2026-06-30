@@ -1150,8 +1150,8 @@
     @if (setting('LATEST_PRODUCT_STATUS') != 0 || setting('LATEST_PRODUCT_STATUS') == '')
         <section class="lux-products">
             <div class="lux-shop-header">
-                <p>Robot-Crafted 3D Art</p>
-                <h1>Cozy Lighting</h1>
+                <p>আমাদের পণ্য</p>
+                <h1>উকুন দূর করার বিশেষ চিরুনি</h1>
             </div>
             <div class=" px-4">
 
@@ -1217,9 +1217,9 @@
                     <a href="{{ $banner->url ?: 'javascript:void(0)' }}" class="lux-banner-card">
                         <img src="{{ asset('uploads/banner/' . $banner->image) }}" alt="Banner">
                         <div class="lux-banner-content">
-                            <div class="lux-banner-eyebrow">Premium Cozy Lighting</div>
-                            <h2>Make Every Corner Glow</h2>
-                            <span class="lux-banner-desc">Discover soft, elegant lighting crafted for modern homes and intimate spaces.</span>
+                            <div class="lux-banner-eyebrow">Onlinebari</div>
+                            <h2>Bringing the World to Your Door</h2>
+                            <span class="lux-banner-desc">Quality products at honest prices, delivered fast across Bangladesh.</span>
                             <div class="lux-banner-buttons">
                                 <button type="button" class="btn-primary-glow" onclick="window.location='{{ route('product') }}'">Shop Now</button>
                                 <button type="button" class="btn-ghost-white" onclick="window.location='{{ route('categories_all') }}'">Explore Collection</button>
@@ -1255,11 +1255,11 @@
             <div class="lux-prem-footer-top">
                 <div class="lux-prem-footer-brand">
                     @if(setting('logo'))
-                        <img src="{{ asset('uploads/setting/' . setting('logo')) }}" alt="{{ setting('site_name', 'AnasLuxyWorld') }}" class="lux-prem-footer-logo">
+                        <img src="{{ asset('uploads/setting/' . setting('logo')) }}" alt="{{ setting('site_name', 'Onlinebari') }}" class="lux-prem-footer-logo">
                     @else
-                        <div class="brand-name">AnasLuxyWorld</div>
+                        <div class="brand-name">Onlinebari</div>
                     @endif
-                    <p>Premium cozy lighting crafted to elevate your space with elegance and warmth.</p>
+                    <p>Onlinebari — বিশ্বস্ত অনলাইন শপ। মানসম্মত পণ্য, দ্রুত ডেলিভারি ও সহজ অর্ডার।</p>
                     <div class="lux-prem-social">
                         @if(!empty(setting('facebook')))
                             <a href="{{ setting('facebook') }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -1313,7 +1313,7 @@
         </div>
 
         <div class="lux-prem-footer-bottom">
-            <span>© {{ date('Y') }} AnasLuxyWorld. All rights reserved.</span>
+            <span>© {{ date('Y') }} Onlinebari. All rights reserved.</span>
             <div class="lux-prem-footer-bottom-links">
                 <a href="{{ route('page', ['slug' => 'privacy-policy']) }}">Privacy</a>
                 <a href="{{ route('page', ['slug' => 'terms-and-conditions']) }}">Terms</a>

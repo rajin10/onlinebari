@@ -1,6 +1,6 @@
 @extends('layouts.frontend.app')
 
-@section('title', 'Create Account — ' . setting('site_name', 'Anas Luxyworld'))
+@section('title', 'Create Account — ' . setting('site_name', 'Onlinebari'))
 
 @push('override_css')
 .site-footer > footer { display: block !important; }
@@ -9,7 +9,7 @@
 @push('css')
 <style>
 /* ─────────────────────────────────────────────────
-   AUTH DESIGN SYSTEM  ·  Anas Luxyworld (register)
+   AUTH DESIGN SYSTEM  ·  Onlinebari (register)
    ───────────────────────────────────────────────── */
 :root {
     --au-navy:   #0b1930;

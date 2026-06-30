@@ -1,6 +1,6 @@
 @extends('layouts.frontend.app')
 
-@section('title', 'Sign In — ' . setting('site_name', 'Anas Luxyworld'))
+@section('title', 'Sign In — ' . setting('site_name', 'Onlinebari'))
 
 @push('override_css')
 .site-footer > footer { display: block !important; }
@@ -9,7 +9,7 @@
 @push('css')
 <style>
 /* ─────────────────────────────────────────────────
-   AUTH DESIGN SYSTEM  ·  Anas Luxyworld
+   AUTH DESIGN SYSTEM  ·  Onlinebari
    ───────────────────────────────────────────────── */
 :root {
     --au-navy:   #0b1930;
@@ -748,7 +748,7 @@ if (route('home').'/register' == url()->previous()) {
             <div class="au-divider"><span>or</span></div>
 
             <p class="au-alt">
-                New to {{ setting('site_name', 'Anas Luxyworld') }}?&nbsp;
+                New to {{ setting('site_name', 'Onlinebari') }}?&nbsp;
                 <a href="{{ route('register') }}">Create an account</a>
             </p>
 
