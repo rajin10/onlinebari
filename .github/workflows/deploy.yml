@@ -1,0 +1,77 @@
+name: Deploy to Hostinger
+
+# Auto-deploys the storefront to onlinebari.reliableuksolutions.com on every
+# push to main. Assets are built here (the server has no Node); PHP deps,
+# migrations and caches run on the server over SSH.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install JS deps and build assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: Package built assets
+        run: tar -czf build.tar.gz -C public build
+
+      - name: Upload built assets to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: build.tar.gz
+          target: domains/onlinebari.reliableuksolutions.com/app
+
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ~/domains/onlinebari.reliableuksolutions.com/app
+            echo "==> Pulling latest code"
+            git fetch --depth 1 origin main
+            git reset --hard origin/main
+            echo "==> Installing PHP dependencies"
+            composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+            echo "==> Deploying built assets"
+            rm -rf public/build
+            tar -xzf build.tar.gz -C public
+            rm -f build.tar.gz
+            echo "==> Ensuring storage symlink"
+            [ -L public/storage ] || ln -sfn ../storage/app/public public/storage
+            echo "==> Running migrations"
+            php artisan migrate --force
+            echo "==> Rebuilding caches"
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+            echo "==> Fixing permissions"
+            chmod -R ug+rwX storage bootstrap/cache
+            echo "==> Deployed $(git rev-parse --short HEAD)"
