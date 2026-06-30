@@ -33,3 +33,6 @@ public/fonts-manifest.dev.json
 
 # Subagent-driven-development scratch
 .superpowers/
+
+# Claude Code personal settings (autonomy + push-gating hook)
+/.claude/settings.local.json
