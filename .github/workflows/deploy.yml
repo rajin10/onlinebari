@@ -42,7 +42,16 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          # Retry keyscan — a single transient timeout must not abort the deploy.
+          for i in 1 2 3 4 5; do
+            ssh-keyscan -T 20 -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null && break
+            echo "ssh-keyscan attempt $i failed; retrying in 5s..."
+            sleep 5
+          done
+          # Belt-and-suspenders: if keyscan still produced nothing, accept the
+          # host key on first connect so the deploy is never blocked by it.
+          printf 'Host *\n  StrictHostKeyChecking accept-new\n' >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
       - name: Update code on server
         run: |

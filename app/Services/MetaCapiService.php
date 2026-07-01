@@ -6,6 +6,7 @@ use App\Jobs\SendMetaCapiEvent;
 use App\Models\Order;
 use App\Support\Tracking;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Meta Conversions API (server-side) sender.
@@ -37,12 +38,17 @@ class MetaCapiService
             return;
         }
 
-        // One send per order (Meta also dedupes by event_id, this just avoids noise).
-        if (! Cache::add('capi_purchase.'.$order->id, 1, now()->addHours(6))) {
-            return;
-        }
+        // Tracking must NEVER break the order-success page: swallow everything.
+        try {
+            // One send per order (Meta also dedupes by event_id, this just avoids noise).
+            if (! Cache::add('capi_purchase.'.$order->id, 1, now()->addHours(6))) {
+                return;
+            }
 
-        SendMetaCapiEvent::dispatchAfterResponse([self::purchaseEvent($order)]);
+            SendMetaCapiEvent::dispatchAfterResponse([self::purchaseEvent($order)]);
+        } catch (\Throwable $e) {
+            Log::warning('Meta CAPI queuePurchase failed', ['error' => $e->getMessage()]);
+        }
     }
 
     protected static function purchaseEvent(Order $order): array
