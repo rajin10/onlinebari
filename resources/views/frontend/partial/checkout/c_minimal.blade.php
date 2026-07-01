@@ -436,8 +436,10 @@
     <script>
         $(document).ready(function() {
             window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ ecommerce: null });
             window.dataLayer.push({
                 "event": "begin_checkout",
+                "event_id": (window.DL ? window.DL.uuid() : undefined),
                 "ecommerce": {
                     "currency": "BDT",
                     "value": {{ $stotal }},

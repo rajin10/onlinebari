@@ -413,8 +413,10 @@
     <script>
         $(document).ready(function() {
             window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ ecommerce: null });
             window.dataLayer.push({
                 "event": "begin_checkout",
+                "event_id": (window.DL ? window.DL.uuid() : undefined),
                 "ecommerce": { "currency": "BDT", "value": {{ $sub_total }}, "items": [{ "item_id": "{{ $product->id }}", "item_name": @json($product->title), "price": {{ $request->dynamic_price }}, "quantity": {{ $request->qty }} }] }
             });
         });

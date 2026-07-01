@@ -2,6 +2,9 @@
 <html lang="en">
 
 <head>
+    {{-- Google Tag Manager + dataLayer helper (must load as early as possible) --}}
+    @include('partials.gtm-head')
+    @include('partials.tracking')
     @include('layouts.frontend.partials.meta')
     @include('layouts.global')
     @include('layouts.frontend.partials.style')
@@ -172,6 +175,9 @@
 </head>
 
 <body>
+    {{-- Google Tag Manager (noscript) --}}
+    @include('partials.gtm-body')
+
     <div id="cart-container" style="display: none"></div>
 
     {{-- Remove previous in-body .container override; we have scoped CSS above --}}

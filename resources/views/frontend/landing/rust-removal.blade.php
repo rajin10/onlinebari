@@ -13,6 +13,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {{-- Google Tag Manager + dataLayer helper --}}
+    @include('partials.gtm-head')
+    @include('partials.tracking')
+
     <title>মরিচা রডের শক্তি কেড়ে নেওয়ার আগেই থামান</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -24,6 +29,9 @@
 </head>
 
 <body class="rust-removal-page">
+    {{-- Google Tag Manager (noscript) --}}
+    @include('partials.gtm-body')
+
     <div class="lp-card">
 
         {{-- Urgency bar --}}

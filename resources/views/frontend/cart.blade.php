@@ -484,8 +484,10 @@ $(document).ready(function () {
                     });
 
                     window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({ ecommerce: null });
                     window.dataLayer.push({
                         event:'view_cart',
+                        event_id:(window.DL ? window.DL.uuid() : undefined),
                         ecommerce:{
                             currency:'BDT',
                             value:parseFloat(total),

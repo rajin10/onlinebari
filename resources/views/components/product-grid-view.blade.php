@@ -296,8 +296,10 @@
             .then(data => {
                 // GA4 Event
                 window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ ecommerce: null });
                 window.dataLayer.push({
                     "event": "add_to_cart",
+                    "event_id": (window.DL ? window.DL.uuid() : undefined),
                     "ecommerce": {
                         "currency": "BDT",
                         "value": parseFloat(btn.getAttribute('data-price') || 0),

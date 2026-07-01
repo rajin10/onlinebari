@@ -11,6 +11,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {{-- Google Tag Manager + dataLayer helper --}}
+    @include('partials.gtm-head')
+    @include('partials.tracking')
+
     <title>মাত্র ৫ মিনিটে উকুন দূর করুন — বিশেষ চিরুনি</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,6 +27,9 @@
 </head>
 
 <body class="lice-comb-page">
+    {{-- Google Tag Manager (noscript) --}}
+    @include('partials.gtm-body')
+
     <div class="lp-card">
 
         {{-- Urgency bar --}}

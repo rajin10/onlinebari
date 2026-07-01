@@ -9,6 +9,7 @@
 
 @section('content')
     @php
+        $purchaseEventId = \App\Support\Tracking::purchaseEventId($order);
         $currency = setting('CURRENCY_CODE_MIN') ?? 'TK';
         $waNumber = preg_replace('/[^0-9]/', '', setting('WHATSAPP_FLOAT_NUMBER') ?: (setting('whatsapp') ?? ''));
         $deliveryEstimate = setting('DELIVERY_ESTIMATE') ?: '২–৫ কর্মদিবসের মধ্যে';
@@ -140,8 +141,10 @@
 @push('js')
     <script>
         window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ ecommerce: null });
         window.dataLayer.push({
             "event": "purchase",
+            "event_id": @json($purchaseEventId),
             "ecommerce": {
                 "transaction_id": "{{ $order->invoice }}",
                 "value": {{ (float) $order->total }},

@@ -1,6 +1,11 @@
 
 
 
+{{-- Google Tag Manager + dataLayer helper (standalone page — not wrapped by the app layout) --}}
+@include('partials.gtm-head')
+@include('partials.tracking')
+@include('partials.gtm-body')
+
 <style>
 .main-product-page-top-space{
     padding-top:110px;
@@ -570,6 +575,23 @@ function buyNowProduct() {
     form.method = "GET";
     form.submit();
 }
+</script>
+
+{{-- GA4 / Meta product_view (view_item) --}}
+<script>
+    (function () {
+        if (!window.DL) return;
+        window.DL.productView({
+            currency: window.DL.currency,
+            value: {{ (float) $finalPrice }},
+            items: [{
+                item_id: @json((string) $product->id),
+                item_name: @json($product->title),
+                price: {{ (float) $finalPrice }},
+                quantity: 1
+            }]
+        });
+    })();
 </script>
 
 
