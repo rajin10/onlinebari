@@ -2,7 +2,9 @@
     use App\Models\LandingPageContent;
 
     $fields = collect($config['fields']);
-    $sections = $fields->groupBy('section');
+    // preserveKeys=true so each grouped field keeps its string key (hero_image, …);
+    // that key is the input `name`, so the controller receives the right fields.
+    $sections = $fields->groupBy('section', true);
 @endphp
 
 @extends('layouts.admin.app')
@@ -117,6 +119,24 @@
                                                     Paste a valid YouTube URL and save to see the embed here.
                                                 </p>
                                             </div>
+                                        </div>
+
+                                    {{-- ---------------------------------------- plain text slot --}}
+                                    @elseif ($field['type'] === 'text')
+                                        <div>
+                                            <label for="{{ $key }}" class="block text-sm font-medium text-slate-700">
+                                                {{ $field['label'] }}
+                                            </label>
+                                            <p class="mb-2 text-xs text-slate-500">{{ $field['help'] }}</p>
+
+                                            <input type="text" name="{{ $key }}" id="{{ $key }}"
+                                                value="{{ old($key, $value ?? ($field['default'] ?? '')) }}"
+                                                placeholder="{{ $field['default'] ?? '' }}"
+                                                class="block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500">
+
+                                            @error($key)
+                                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                     @endif
                                 @endforeach

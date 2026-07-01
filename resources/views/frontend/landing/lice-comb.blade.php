@@ -49,7 +49,7 @@
                 <span class="lp-badge lp-badge--accent"><i class="ti ti-truck-delivery" aria-hidden="true"></i> ক্যাশ অন ডেলিভারি</span>
             </div>
 
-            <button type="button" class="lp-cta" data-scroll-to="#lp-order">এখনই অর্ডার করুন — ২৮০৳</button>
+            @include('frontend.landing.partials.cta', ['label' => 'এখনই অর্ডার করুন — ২৮০৳'])
             <p class="lp-note">সারাদেশে হোম ডেলিভারি</p>
         </div>
 
@@ -250,7 +250,7 @@
                 <p class="lp-final__was">নিয়মিত মূল্য ৫৫০৳</p>
                 <p class="lp-final__now">২৮০৳</p>
                 <p class="lp-discount">সর্বোচ্চ ডিসকাউন্ট চলছে</p>
-                <a href="tel:{{ $phone }}" class="lp-cta">এই চিরুনিটি অর্ডার করতে চাই</a>
+                @include('frontend.landing.partials.cta', ['label' => 'এই চিরুনিটি অর্ডার করতে চাই'])
                 <p class="lp-final__trust"><i class="ti ti-shield-lock" aria-hidden="true"></i> ইনশাআল্লাহ উকুনমুক্তির প্রতিশ্রুতি</p>
             </div>
         </div>
