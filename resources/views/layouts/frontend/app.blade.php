@@ -436,6 +436,24 @@
                 }).then(function (r) { return r.json(); });
             }
 
+            /* ---- GA4 / Meta add_to_cart (reads button data-* + form fields) ---- */
+            function pushAddToCart(btn, form) {
+                if (!window.DL) return;
+                function fieldVal(sel) { var el = form && form.querySelector(sel); return el ? el.value : undefined; }
+                var qty = parseInt(btn.getAttribute('data-qty') || fieldVal('[name="qty"]') || 1, 10) || 1;
+                var price = parseFloat(btn.getAttribute('data-price') || 0) || 0;
+                window.DL.addToCart({
+                    currency: window.DL.currency,
+                    value: price * qty,
+                    items: [{
+                        item_id: btn.getAttribute('data-id') || fieldVal('[name="id"]'),
+                        item_name: btn.getAttribute('data-name') || undefined,
+                        price: price,
+                        quantity: qty
+                    }]
+                });
+            }
+
             /* ---- Add to Cart (delegated, works on every page) ---- */
             document.addEventListener('click', function (e) {
                 var btn = e.target.closest('.ajax-lux-cart-btn');
@@ -446,6 +464,7 @@
                 btn.disabled = true;
                 addToCart(form).then(function (data) {
                     bumpCounts(data && data.count);
+                    pushAddToCart(btn, form);
                     toast('Added to cart!');
                     if (window.refreshMiniCart) window.refreshMiniCart();
                     if (window.openMiniCart) window.openMiniCart();
@@ -463,7 +482,7 @@
                 btn.disabled = true;
                 btn.textContent = 'প্রসেসিং...';
                 addToCart(form)
-                    .then(function () { window.location = "{{ route('checkout') }}"; })
+                    .then(function () { pushAddToCart(btn, form); window.location = "{{ route('checkout') }}"; })
                     .catch(function () { btn.disabled = false; btn.innerHTML = original; });
             });
         })();

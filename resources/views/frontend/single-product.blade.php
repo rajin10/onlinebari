@@ -577,20 +577,40 @@ function buyNowProduct() {
 }
 </script>
 
-{{-- GA4 / Meta product_view (view_item) --}}
+{{-- GA4 / Meta product_view (view_item) + add_to_cart on the product form --}}
 <script>
     (function () {
         if (!window.DL) return;
+
+        var PRICE = {{ (float) $finalPrice }};
+        var ITEM = {
+            item_id: @json((string) $product->id),
+            item_name: @json($product->title),
+            price: PRICE,
+            quantity: 1
+        };
+
         window.DL.productView({
             currency: window.DL.currency,
-            value: {{ (float) $finalPrice }},
-            items: [{
-                item_id: @json((string) $product->id),
-                item_name: @json($product->title),
-                price: {{ (float) $finalPrice }},
-                quantity: 1
-            }]
+            value: PRICE,
+            items: [ITEM]
         });
+
+        /* add_to_cart — fires only on the real "Add To Cart" submit.
+           "Buy It Now" calls form.submit() programmatically, which does NOT
+           dispatch the submit event, so it is correctly excluded. */
+        var luxForm = document.getElementById('luxProductForm');
+        if (luxForm) {
+            luxForm.addEventListener('submit', function () {
+                var qtyEl = luxForm.querySelector('[name="qty"]');
+                var qty = parseInt((qtyEl && qtyEl.value) || 1, 10) || 1;
+                window.DL.addToCart({
+                    currency: window.DL.currency,
+                    value: PRICE * qty,
+                    items: [{ item_id: ITEM.item_id, item_name: ITEM.item_name, price: PRICE, quantity: qty }]
+                });
+            });
+        }
     })();
 </script>
 
