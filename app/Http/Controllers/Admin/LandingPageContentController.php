@@ -53,6 +53,8 @@ class LandingPageContentController extends Controller
                         }
                     },
                 ];
+            } elseif ($field['type'] === 'text') {
+                $rules[$key] = 'nullable|string|max:255';
             }
         }
 
@@ -64,10 +66,10 @@ class LandingPageContentController extends Controller
                     $this->storeImage($request, $page, $key);
                 }
                 // No new file selected → leave the existing image untouched.
-            } elseif ($field['type'] === 'youtube_url') {
+            } elseif (in_array($field['type'], ['youtube_url', 'text'], true)) {
                 LandingPageContent::updateOrCreate(
                     ['page_slug' => $page, 'section_key' => $key],
-                    ['content_type' => 'youtube_url', 'value' => $request->input($key) ?: null],
+                    ['content_type' => $field['type'], 'value' => $request->input($key) ?: null],
                 );
             }
         }

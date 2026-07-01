@@ -1,6 +1,8 @@
 @php
     use App\Models\LandingPageContent;
 
+    $heroBefore  = LandingPageContent::imageUrl($content['hero_before_image'] ?? null);
+    $heroAfter   = LandingPageContent::imageUrl($content['hero_after_image'] ?? null);
     $beforeImage = LandingPageContent::imageUrl($content['before_image'] ?? null);
     $afterImage  = LandingPageContent::imageUrl($content['after_image'] ?? null);
     $phone       = '01624109210';
@@ -36,17 +38,27 @@
             <h1 class="lp-title">মরিচা রডের শক্তি কেড়ে নেওয়ার আগেই থামান</h1>
 
             <div class="lp-beforeafter">
-                <div class="lp-ba-cell">
-                    <i class="ti ti-alert-triangle" aria-hidden="true"></i>
-                    <span class="lp-ba-cell__label">আগে — মরিচা ধরা</span>
+                <div class="lp-ba-cell {{ $heroBefore ? 'lp-ba-cell--photo' : '' }}">
+                    @if ($heroBefore)
+                        <img src="{{ $heroBefore }}" alt="আগে — মরিচা ধরা রড">
+                        <span class="lp-ba-cell__tag">আগে — মরিচা ধরা</span>
+                    @else
+                        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+                        <span class="lp-ba-cell__label">আগে — মরিচা ধরা</span>
+                    @endif
                 </div>
-                <div class="lp-ba-cell lp-ba-cell--dark">
-                    <i class="ti ti-shield-check" aria-hidden="true"></i>
-                    <span class="lp-ba-cell__label">পরে — প্রোটেক্টেড</span>
+                <div class="lp-ba-cell lp-ba-cell--dark {{ $heroAfter ? 'lp-ba-cell--photo' : '' }}">
+                    @if ($heroAfter)
+                        <img src="{{ $heroAfter }}" alt="পরে — প্রোটেক্টেড রড">
+                        <span class="lp-ba-cell__tag">পরে — প্রোটেক্টেড</span>
+                    @else
+                        <i class="ti ti-shield-check" aria-hidden="true"></i>
+                        <span class="lp-ba-cell__label">পরে — প্রোটেক্টেড</span>
+                    @endif
                 </div>
             </div>
 
-            <button type="button" class="lp-cta" data-scroll-to="#lp-order">অর্ডার করুন — ৪৮০৳</button>
+            @include('frontend.landing.partials.cta', ['label' => 'অর্ডার করুন — ৪৮০৳'])
             <p class="lp-note">সারাদেশে ডেলিভারি · ক্যাশ অন ডেলিভারি</p>
         </div>
 
@@ -142,7 +154,7 @@
                 <p class="lp-final__was">নিয়মিত মূল্য ৬৫০৳</p>
                 <p class="lp-final__now">৪৮০৳</p>
                 <p class="lp-discount">২৬% ছাড় চলছে</p>
-                <a href="tel:{{ $phone }}" class="lp-cta">এই লিকুইড অর্ডার করতে চাই</a>
+                @include('frontend.landing.partials.cta', ['label' => 'এই লিকুইড অর্ডার করতে চাই'])
                 <p class="lp-final__trust"><i class="ti ti-truck-delivery" aria-hidden="true"></i> ক্যাশ অন ডেলিভারি · সারাদেশে ডেলিভারি</p>
             </div>
         </div>

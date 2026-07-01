@@ -13,8 +13,9 @@ class LandingPageController extends Controller
     public function liceComb()
     {
         $content = LandingPageContent::forPage('lice-comb');
+        $buyUrl = LandingPageContent::buyUrl('lice-comb', $content);
 
-        return view('frontend.landing.lice-comb', compact('content'));
+        return view('frontend.landing.lice-comb', compact('content', 'buyUrl'));
     }
 
     /**
@@ -23,7 +24,8 @@ class LandingPageController extends Controller
     public function rustRemoval()
     {
         $content = LandingPageContent::forPage('rust-removals');
+        $buyUrl = LandingPageContent::buyUrl('rust-removals', $content);
 
-        return view('frontend.landing.rust-removal', compact('content'));
+        return view('frontend.landing.rust-removal', compact('content', 'buyUrl'));
     }
 }
