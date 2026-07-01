@@ -118,6 +118,10 @@ class OrderController extends Controller
             abort(403);
         }
 
+        // Server-side Purchase (Meta CAPI) — deduped with the browser Pixel via
+        // the shared event_id. No-op until META_CAPI_ENABLED is configured.
+        \App\Services\MetaCapiService::queuePurchase($order);
+
         return view('frontend.order_success', ['order' => $order]);
     }
 
