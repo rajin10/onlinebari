@@ -1,0 +1,565 @@
+/*
+|--------------------------------------------------------------------------
+| Lice Comb landing page — fully self-contained, scoped stylesheet
+|--------------------------------------------------------------------------
+| Everything is namespaced under `.lice-comb-page` and every design token is
+| declared locally on that wrapper, so nothing here can leak into or collide
+| with the admin dashboard / storefront global CSS.
+|
+| The mockup referenced --surface-1, --text-accent, --fill-danger, etc.
+| Those tokens are re-declared below with concrete values (same visual result).
+*/
+
+.lice-comb-page {
+    /* type + shape */
+    --font-sans: 'Hind Siliguri', 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --radius: 8px;
+
+    /* surfaces (dark theme) */
+    --surface-1: #333333;              /* elevated inner panels */
+    --surface-2: #262626;              /* card background */
+    --border: rgba(255, 255, 255, 0.08);
+
+    /* text */
+    --text-primary: #fafafa;           /* also used as the high-contrast (light) fill */
+    --text-secondary: #b4b4b8;
+    --text-muted: #808085;
+
+    /* danger / urgency (rose) */
+    --fill-danger: #e11d48;
+    --on-danger: #ffffff;
+    --text-danger: #fb7185;
+    --bg-danger: #3a2327;
+
+    /* accent (blue) */
+    --text-accent: #60a5fa;
+    --bg-accent: #24303f;
+
+    /* success (green) */
+    --text-success: #4ade80;
+    --bg-success: #1c2e22;
+
+    /* warning (amber) */
+    --text-warning: #fbbf24;
+
+    /* page backdrop behind the 420px card */
+    --page-bg: #3f3f3e;
+
+    min-height: 100vh;
+    margin: 0;
+    padding: 24px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: var(--page-bg);
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.lice-comb-page *,
+.lice-comb-page *::before,
+.lice-comb-page *::after {
+    box-sizing: border-box;
+}
+
+/* -------------------------------------------------------------- card shell */
+.lice-comb-page .lp-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface-2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 12px 44px -12px rgba(0, 0, 0, 0.55);   /* intentional lift on desktop */
+}
+
+.lice-comb-page p,
+.lice-comb-page h1,
+.lice-comb-page h2 {
+    margin: 0;
+}
+
+/* --------------------------------------------------------------- sections */
+.lice-comb-page .lp-section {
+    padding: 18px 16px;
+    border-top: 0.5px solid var(--border);
+}
+
+.lice-comb-page .lp-section--tint {
+    background: var(--surface-1);
+}
+
+.lice-comb-page .lp-hero {
+    padding: 20px 16px 16px;
+    text-align: center;
+}
+
+.lice-comb-page .lp-foot {
+    padding: 14px 16px;
+    text-align: center;
+}
+
+/* --------------------------------------------------------------- urgency bar */
+.lice-comb-page .lp-urgency {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px;
+    background: var(--bg-danger);
+    color: var(--text-danger);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.lice-comb-page .lp-urgency i {
+    font-size: 14px;
+}
+
+/* --------------------------------------------------------------- typography */
+.lice-comb-page .lp-eyebrow {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.lice-comb-page .lp-title {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.lice-comb-page .lp-h2 {
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.lice-comb-page .lp-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.lice-comb-page .lp-mt-2 { margin-top: 2px; }
+.lice-comb-page .lp-mb-4 { margin-bottom: 4px; }
+.lice-comb-page .lp-mb-12 { margin-bottom: 12px; }
+
+/* --------------------------------------------------------------- media slots */
+/* Fixed dimensions reserve space up-front so images never cause layout shift. */
+.lice-comb-page .lp-media {
+    position: relative;
+    background: var(--surface-1);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-muted);
+}
+
+.lice-comb-page .lp-hero-media {
+    height: 220px;
+    margin: 14px 0;
+}
+
+.lice-comb-page .lp-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.lice-comb-page .lp-media__ph-icon { font-size: 32px; }
+.lice-comb-page .lp-media__ph-text { font-size: 12px; }
+
+/* --------------------------------------------------------------- video slot */
+.lice-comb-page .lp-video {
+    position: relative;
+    aspect-ratio: 16 / 9;         /* reserves the embed's space up-front (no CLS) */
+    background: var(--surface-1);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.lice-comb-page .lp-video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.lice-comb-page .lp-video__play {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--fill-danger);
+    color: var(--on-danger);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.lice-comb-page .lp-video__hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 0 12px;
+    text-align: center;
+}
+
+.lice-comb-page .lp-video__time {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* --------------------------------------------------------------- CTA button */
+.lice-comb-page .lp-cta {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--fill-danger);
+    color: var(--on-danger);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .18s ease-out, box-shadow .18s ease-out, background-color .18s ease-out;
+}
+
+.lice-comb-page .lp-cta:hover {
+    transform: translateY(-1px);
+    background: #be123c;
+    box-shadow: 0 10px 22px -8px rgba(225, 29, 72, 0.55);
+}
+
+.lice-comb-page .lp-cta:active { transform: translateY(0); }
+
+/* Soft, low-opacity glow ring — animates opacity + transform ONLY. */
+.lice-comb-page .lp-cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 16px 2px var(--fill-danger);
+    opacity: 0;
+    z-index: -1;
+    animation: lp-pulse 2.6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.lice-comb-page .lp-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+.lice-comb-page .lp-note i { font-size: 12px; vertical-align: -1px; }
+
+/* --------------------------------------------------------------- badges */
+.lice-comb-page .lp-badges {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.lice-comb-page .lp-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    white-space: nowrap;
+}
+
+.lice-comb-page .lp-badge i { font-size: 12px; vertical-align: -1px; }
+.lice-comb-page .lp-badge--success { background: var(--bg-success); color: var(--text-success); }
+.lice-comb-page .lp-badge--accent { background: var(--bg-accent); color: var(--text-accent); }
+
+/* --------------------------------------------------------------- feature rows */
+.lice-comb-page .lp-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lice-comb-page .lp-feature {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--surface-1);
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    transition: transform .16s ease-out, box-shadow .16s ease-out;
+}
+
+.lice-comb-page .lp-feature:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.25);
+}
+
+.lice-comb-page .lp-feature__icon {
+    font-size: 20px;
+    color: var(--text-accent);
+    flex-shrink: 0;
+}
+
+.lice-comb-page .lp-feature__title { font-size: 13px; font-weight: 500; }
+.lice-comb-page .lp-feature__desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* --------------------------------------------------------------- steps */
+.lice-comb-page .lp-steps {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.lice-comb-page .lp-step { flex: 1; text-align: center; }
+
+.lice-comb-page .lp-step__num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-accent);
+    color: var(--text-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 6px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.lice-comb-page .lp-step__label { font-size: 11.5px; color: var(--text-secondary); }
+
+/* --------------------------------------------------------------- reviews */
+.lice-comb-page .lp-reviews {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lice-comb-page .lp-review {
+    background: var(--surface-1);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    transition: transform .16s ease-out, box-shadow .16s ease-out;
+}
+
+.lice-comb-page .lp-review:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.25);
+}
+
+.lice-comb-page .lp-review__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.lice-comb-page .lp-review__who { display: flex; align-items: center; gap: 6px; }
+
+.lice-comb-page .lp-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--bg-accent);
+    color: var(--text-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.lice-comb-page .lp-review__name { font-size: 12px; font-weight: 500; }
+
+.lice-comb-page .lp-badge--verify {
+    background: var(--bg-success);
+    color: var(--text-success);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.lice-comb-page .lp-badge--verify i { font-size: 11px; vertical-align: -1px; }
+
+.lice-comb-page .lp-stars { color: var(--text-warning); font-size: 12px; margin-bottom: 4px; }
+.lice-comb-page .lp-review__text { font-size: 12px; color: var(--text-secondary); }
+
+.lice-comb-page .lp-stats {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 0.5px solid var(--border);
+}
+
+.lice-comb-page .lp-stat { text-align: center; }
+.lice-comb-page .lp-stat__num { font-size: 18px; font-weight: 500; }
+.lice-comb-page .lp-stat__label { font-size: 11px; color: var(--text-muted); }
+
+/* --------------------------------------------------------------- package list */
+.lice-comb-page .lp-package {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lice-comb-page .lp-pack {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface-1);
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    transition: transform .16s ease-out, box-shadow .16s ease-out;
+}
+
+.lice-comb-page .lp-pack:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.25);
+}
+
+.lice-comb-page .lp-pack__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--bg-success);
+    color: var(--text-success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.lice-comb-page .lp-pack__body { flex: 1; }
+.lice-comb-page .lp-pack__title { font-size: 13px; font-weight: 500; }
+.lice-comb-page .lp-pack__desc { font-size: 11.5px; color: var(--text-secondary); margin-top: 1px; }
+
+.lice-comb-page .lp-pack__price { font-size: 11px; white-space: nowrap; }
+.lice-comb-page .lp-pack__price--strike { color: var(--text-muted); text-decoration: line-through; }
+.lice-comb-page .lp-pack__price--free { color: var(--text-success); }
+
+.lice-comb-page .lp-pricerow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 0.5px solid var(--border);
+}
+
+.lice-comb-page .lp-pricerow--tight { margin-top: 4px; padding-top: 0; border-top: 0; }
+.lice-comb-page .lp-pricerow__label { font-size: 13px; color: var(--text-secondary); }
+.lice-comb-page .lp-pricerow__label--strong { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+.lice-comb-page .lp-pricerow__strike { font-size: 13px; color: var(--text-muted); text-decoration: line-through; }
+.lice-comb-page .lp-pricerow__now { font-size: 20px; font-weight: 500; color: var(--text-danger); }
+
+/* --------------------------------------------------------------- final block */
+.lice-comb-page .lp-final__was {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-decoration: line-through;
+}
+
+.lice-comb-page .lp-final__now {
+    font-size: 26px;
+    font-weight: 500;
+    margin: 2px 0 4px;
+    color: var(--text-danger);
+}
+
+.lice-comb-page .lp-discount {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--text-success);
+    margin-bottom: 12px;
+    animation: lp-badge-pulse 2.4s ease-in-out infinite;
+}
+
+.lice-comb-page .lp-final__trust { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+.lice-comb-page .lp-final__trust i { font-size: 12px; vertical-align: -1px; }
+
+/* --------------------------------------------------------------- phone foot */
+.lice-comb-page .lp-phone {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.lice-comb-page .lp-phone i { font-size: 13px; vertical-align: -2px; margin-right: 4px; }
+.lice-comb-page a.lp-phone:hover { color: var(--text-danger); }
+
+/* --------------------------------------------------------------- animations */
+@keyframes lp-pulse {
+    0%, 100% { opacity: 0; transform: scale(0.98); }
+    50%      { opacity: 0.32; transform: scale(1); }
+}
+
+@keyframes lp-badge-pulse {
+    0%, 100% { opacity: 0.6; transform: scale(0.99); }
+    50%      { opacity: 1; transform: scale(1); }
+}
+
+/* scroll reveal — transform + opacity only */
+.lice-comb-page [data-animate] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .5s ease-out, transform .5s ease-out;
+    will-change: transform, opacity;
+}
+
+.lice-comb-page [data-animate].is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* --------------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .lice-comb-page [data-animate] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .lice-comb-page .lp-cta::after,
+    .lice-comb-page .lp-discount {
+        animation: none !important;
+    }
+
+    .lice-comb-page *,
+    .lice-comb-page *::before,
+    .lice-comb-page *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+    }
+}

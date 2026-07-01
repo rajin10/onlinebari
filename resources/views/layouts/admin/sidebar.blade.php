@@ -190,6 +190,14 @@
                             onclick="window.location='{{ url('admin/pages') }}'">
                             <i class="bx bx-file"></i> Pages
                         </li>
+                        <li class="{{ $navActive('admin/landing/lice-comb*') }}"
+                            onclick="window.location='{{ url('admin/landing/lice-comb') }}'">
+                            <i class="bx bx-bug"></i> Lice Comb Landing
+                        </li>
+                        <li class="{{ $navActive('admin/landing/rust-removals*') }}"
+                            onclick="window.location='{{ url('admin/landing/rust-removals') }}'">
+                            <i class="bx bx-shield-alt-2"></i> Rust Removal Landing
+                        </li>
                         <li class="{{ $navActive('admin/notice*') }}"
                             onclick="window.location='{{ url('admin/notice') }}'">
                             <i class="bx bx-info-circle"></i> Notice
