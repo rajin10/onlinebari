@@ -12,6 +12,7 @@ use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\IncompleteLeadController;
+use App\Http\Controllers\Frontend\LandingPageController;
 use App\Http\Controllers\Frontend\OrderController;
 use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\Frontend\VendorController;
@@ -50,6 +51,10 @@ Route::prefix('admin')
 Route::prefix('vendor')
     ->as('vendor.')
     ->group(base_path('routes/vendor.php'));
+
+// Standalone product landing pages (registered before the /{slug} catch-all).
+Route::get('/lice-comb', [LandingPageController::class, 'liceComb'])->name('landing.lice-comb');
+Route::get('/rust-removals', [LandingPageController::class, 'rustRemoval'])->name('landing.rust-removals');
 // Hridoy
 Route::get('/get-off-canvas-cart', [CartController::class, 'get_off_canvas_cart'])->name('get-off-canvas-cart');
 Route::get('/mini-cart', [CartController::class, 'miniCart'])->name('mini-cart');

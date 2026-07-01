@@ -1,0 +1,398 @@
+/*
+|--------------------------------------------------------------------------
+| Rust Removal landing page — fully self-contained, scoped stylesheet
+|--------------------------------------------------------------------------
+| Independent of the lice-comb sheet and of all global CSS. Everything is
+| namespaced under `.rust-removal-page` with locally-declared design tokens,
+| so nothing here can leak into or collide with the admin dashboard styles.
+*/
+
+.rust-removal-page {
+    --font-sans: 'Hind Siliguri', 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --radius: 8px;
+
+    --surface-1: #333333;              /* elevated inner panels */
+    --surface-2: #262626;              /* card background */
+    --border: rgba(255, 255, 255, 0.08);
+
+    --text-primary: #fafafa;           /* also the high-contrast "after" fill */
+    --text-secondary: #b4b4b8;
+    --text-muted: #808085;
+
+    --fill-danger: #e11d48;
+    --on-danger: #ffffff;
+    --text-danger: #fb7185;
+    --bg-danger: #3a2327;
+
+    --text-accent: #60a5fa;
+    --bg-accent: #24303f;
+
+    --text-success: #4ade80;
+    --bg-success: #1c2e22;
+
+    --text-warning: #fbbf24;
+
+    --page-bg: #3f3f3e;
+
+    min-height: 100vh;
+    margin: 0;
+    padding: 24px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: var(--page-bg);
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+.rust-removal-page *,
+.rust-removal-page *::before,
+.rust-removal-page *::after {
+    box-sizing: border-box;
+}
+
+/* -------------------------------------------------------------- card shell */
+.rust-removal-page .lp-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface-2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 12px 44px -12px rgba(0, 0, 0, 0.55);
+}
+
+.rust-removal-page p,
+.rust-removal-page h1,
+.rust-removal-page h2 {
+    margin: 0;
+}
+
+/* --------------------------------------------------------------- sections */
+.rust-removal-page .lp-section {
+    padding: 18px 16px;
+    border-top: 0.5px solid var(--border);
+}
+
+.rust-removal-page .lp-section--tint { background: var(--surface-1); }
+
+.rust-removal-page .lp-hero {
+    padding: 20px 16px 16px;
+    text-align: center;
+}
+
+.rust-removal-page .lp-foot {
+    padding: 14px 16px;
+    text-align: center;
+}
+
+/* --------------------------------------------------------------- urgency bar */
+.rust-removal-page .lp-urgency {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px;
+    background: var(--bg-danger);
+    color: var(--text-danger);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.rust-removal-page .lp-urgency i { font-size: 14px; }
+
+/* --------------------------------------------------------------- typography */
+.rust-removal-page .lp-eyebrow {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.rust-removal-page .lp-title {
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.rust-removal-page .lp-h2 {
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.rust-removal-page .lp-lead {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.6;
+}
+
+.rust-removal-page .lp-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.rust-removal-page .lp-mb-4 { margin-bottom: 4px; }
+.rust-removal-page .lp-mb-12 { margin-bottom: 12px; }
+
+/* ------------------------------------------------- hero before/after (icons) */
+.rust-removal-page .lp-beforeafter {
+    display: flex;
+    height: 190px;
+    margin: 14px 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.rust-removal-page .lp-ba-cell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: var(--surface-1);
+    border-right: 1px solid var(--surface-2);
+}
+
+.rust-removal-page .lp-ba-cell:last-child { border-right: 0; }
+.rust-removal-page .lp-ba-cell--dark { background: var(--text-primary); }
+
+.rust-removal-page .lp-ba-cell i { font-size: 22px; color: var(--text-danger); }
+.rust-removal-page .lp-ba-cell--dark i { color: var(--surface-2); }
+
+.rust-removal-page .lp-ba-cell__label { font-size: 11px; color: var(--text-muted); }
+.rust-removal-page .lp-ba-cell--dark .lp-ba-cell__label { color: var(--surface-1); }
+
+/* ---------------------------------------------- before/after real photos */
+.rust-removal-page .lp-ba-photos {
+    display: flex;
+    height: 150px;
+    margin-bottom: 14px;
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.rust-removal-page .lp-ba-photo {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-1);
+    border-right: 1px solid var(--surface-2);
+}
+
+.rust-removal-page .lp-ba-photo:last-child { border-right: 0; }
+.rust-removal-page .lp-ba-photo--dark { background: var(--text-primary); }
+
+.rust-removal-page .lp-ba-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.rust-removal-page .lp-ba-photo__ph { font-size: 24px; color: var(--text-muted); }
+.rust-removal-page .lp-ba-photo--dark .lp-ba-photo__ph { color: var(--surface-1); }
+
+.rust-removal-page .lp-ba-photo__tag {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+/* --------------------------------------------------------------- CTA button */
+.rust-removal-page .lp-cta {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--fill-danger);
+    color: var(--on-danger);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform .18s ease-out, box-shadow .18s ease-out, background-color .18s ease-out;
+}
+
+.rust-removal-page .lp-cta:hover {
+    transform: translateY(-1px);
+    background: #be123c;
+    box-shadow: 0 10px 22px -8px rgba(225, 29, 72, 0.55);
+}
+
+.rust-removal-page .lp-cta:active { transform: translateY(0); }
+
+.rust-removal-page .lp-cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 16px 2px var(--fill-danger);
+    opacity: 0;
+    z-index: -1;
+    animation: lp-pulse 2.6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.rust-removal-page .lp-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+.rust-removal-page .lp-note i { font-size: 12px; vertical-align: -1px; }
+
+/* --------------------------------------------------------------- feature rows */
+.rust-removal-page .lp-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.rust-removal-page .lp-feature {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--surface-1);
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    transition: transform .16s ease-out, box-shadow .16s ease-out;
+}
+
+.rust-removal-page .lp-feature:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.25);
+}
+
+.rust-removal-page .lp-feature__icon {
+    font-size: 20px;
+    color: var(--text-accent);
+    flex-shrink: 0;
+}
+
+.rust-removal-page .lp-feature__title { font-size: 13px; font-weight: 500; }
+.rust-removal-page .lp-feature__desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* --------------------------------------------------------------- checklist */
+.rust-removal-page .lp-checks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rust-removal-page .lp-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rust-removal-page .lp-check i { font-size: 16px; color: var(--text-success); flex-shrink: 0; }
+.rust-removal-page .lp-check span { font-size: 12.5px; }
+
+/* --------------------------------------------------------------- quote */
+.rust-removal-page .lp-quote {
+    background: var(--surface-1);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    text-align: center;
+}
+
+.rust-removal-page .lp-quote__text { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+.rust-removal-page .lp-quote__by { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+
+/* --------------------------------------------------------------- final block */
+.rust-removal-page .lp-final__was {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-decoration: line-through;
+}
+
+.rust-removal-page .lp-final__now {
+    font-size: 26px;
+    font-weight: 500;
+    margin: 2px 0 4px;
+    color: var(--text-danger);
+}
+
+.rust-removal-page .lp-discount {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--text-success);
+    margin-bottom: 12px;
+    animation: lp-badge-pulse 2.4s ease-in-out infinite;
+}
+
+.rust-removal-page .lp-final__trust { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+.rust-removal-page .lp-final__trust i { font-size: 12px; vertical-align: -1px; }
+
+/* --------------------------------------------------------------- phone foot */
+.rust-removal-page .lp-phone {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.rust-removal-page .lp-phone i { font-size: 13px; vertical-align: -2px; margin-right: 4px; }
+.rust-removal-page a.lp-phone:hover { color: var(--text-danger); }
+
+/* --------------------------------------------------------------- animations */
+@keyframes lp-pulse {
+    0%, 100% { opacity: 0; transform: scale(0.98); }
+    50%      { opacity: 0.32; transform: scale(1); }
+}
+
+@keyframes lp-badge-pulse {
+    0%, 100% { opacity: 0.6; transform: scale(0.99); }
+    50%      { opacity: 1; transform: scale(1); }
+}
+
+.rust-removal-page [data-animate] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .5s ease-out, transform .5s ease-out;
+    will-change: transform, opacity;
+}
+
+.rust-removal-page [data-animate].is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* --------------------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .rust-removal-page [data-animate] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .rust-removal-page .lp-cta::after,
+    .rust-removal-page .lp-discount {
+        animation: none !important;
+    }
+
+    .rust-removal-page *,
+    .rust-removal-page *::before,
+    .rust-removal-page *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+    }
+}

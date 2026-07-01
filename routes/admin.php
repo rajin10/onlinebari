@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\Ecommerce\TagController;
 use App\Http\Controllers\Admin\Ecommerce\ticketController;
 use App\Http\Controllers\Admin\Ecommerce\VendorController;
 use App\Http\Controllers\Admin\IpBlockController;
+use App\Http\Controllers\Admin\LandingPageContentController;
 use App\Http\Controllers\blogControler as ablogController;
 use App\Http\Controllers\campaingController;
 use App\Http\Controllers\CourierController;
@@ -76,6 +77,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('slider', SliderController::class);
     Route::resource('video', HomepageVideoController::class);
     Route::resource('banner', BannerController::class);
+
+    // Landing page content management (Lice Comb + Rust Removal)
+    Route::get('landing/{page}', [LandingPageContentController::class, 'edit'])->name('landing.edit');
+    Route::put('landing/{page}', [LandingPageContentController::class, 'update'])->name('landing.update');
+    Route::delete('landing/{page}/{key}', [LandingPageContentController::class, 'deleteImage'])->name('landing.image.delete');
 
     Route::resource('sliderone', NewSliderController::class);
     Route::resource('brand', BrandController::class);
